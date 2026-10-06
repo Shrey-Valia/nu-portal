@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+
+# Browser session (cookies for your NUworks login): never commit
+.auth/
+
+# Your personal data: profile, resumes, scraped postings, application log
+config/profile.json
+documents/
+data/
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Playwright / MCP output
+test-results/
+playwright-report/
+.playwright-mcp/
+*.trace.zip
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
+.claude/settings.local.json

@@ -1,0 +1,15 @@
+{
+  "targetRoles": ["Software Engineer Co-op", "Data Science Co-op", "Machine Learning Co-op"],
+  "mustHaveKeywords": ["Python"],
+  "niceToHaveKeywords": ["TypeScript", "React", "AWS", "SQL", "machine learning"],
+  "excludeKeywords": ["unpaid", "security clearance required"],
+  "excludeCompanies": [],
+  "locations": ["Boston, MA", "Cambridge, MA", "New York, NY"],
+  "remoteOk": true,
+  "minMatchScore": 0.6,
+  "maxApplicationsPerRun": 10,
+  "documents": {
+    "resumeName": "Name of the resume as it appears in your NUworks Documents tab",
+    "coverLetterName": null
+  }
+}
