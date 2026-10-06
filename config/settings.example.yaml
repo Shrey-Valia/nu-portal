@@ -1,0 +1,54 @@
+# Copy to config/settings.yaml (gitignored) and adjust. Every key is optional;
+# anything you leave out uses the default shown here.
+
+timezone: America/New_York
+
+cycle:
+  label: Spring 2027      # the co-op cycle you are searching for
+  cap: 100                # NUworks application cap per cycle
+  reserve: 10             # slots held back for postings you find yourself
+  seasonEnd: 2027-01-08
+
+nuworks:
+  weeklyLimit: 20         # your own limit, inside the 100 cap
+  minDailyQueue: 2
+  maxDailyQueue: 10
+  maxPerEmployer: 2
+  minScore: 60            # 0-100 fit score needed to reach your review queue
+  maxScoresPerDay: 150    # protects your Claude plan limits on big days
+  coverLetters: required  # required | whenAccepted
+
+external:
+  enabled: false
+  repos: []               # GitHub job-list repos, e.g. https://github.com/<owner>/<repo>
+  terms: [Spring 2027]
+  maxPerDay: 25
+  maxPerCompany: 3
+  postedWithinDays: 21
+  minRelevance: 60
+  coverLetters: required
+  adapters:               # off | supervised (you approve each) | auto
+    greenhouse: off
+    lever: off
+    ashby: off
+
+pacing:
+  actionDelayMs: [1200, 3500]
+  nuworksBetweenAppsMs: [60000, 180000]
+  externalBetweenAppsMs: [45000, 120000]
+
+brain:
+  claudeBin: claude
+  scoreModel: opus
+  scoreEffort: low
+  writeModel: opus
+  writeEffort: medium
+  timeoutMs: 240000
+  concurrency: 2
+
+schedule:
+  dailyTime: "08:30"
+  weekdaysOnly: true
+
+server:
+  port: 4317

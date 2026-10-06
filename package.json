@@ -5,14 +5,22 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": ">=20"
+    "node": ">=22.13"
   },
   "scripts": {
-    "login": "tsx src/login.ts",
+    "nup": "node --disable-warning=ExperimentalWarning --import tsx src/cli.ts",
+    "prepare": "git config core.hooksPath .githooks || true",
+    "login": "node --disable-warning=ExperimentalWarning --import tsx src/cli.ts login",
+    "session:check": "node --disable-warning=ExperimentalWarning --import tsx src/cli.ts session:check",
+    "doctor": "node --disable-warning=ExperimentalWarning --import tsx src/cli.ts doctor",
+    "backup": "node --disable-warning=ExperimentalWarning --import tsx src/cli.ts backup",
+    "test": "node --disable-warning=ExperimentalWarning --import tsx --test \"test/**/*.test.ts\"",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "playwright": "^1.48.0"
+    "playwright": "^1.48.0",
+    "yaml": "^2.9.1",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

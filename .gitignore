@@ -4,10 +4,15 @@ node_modules/
 # Browser session (cookies for your NUworks login): never commit
 .auth/
 
-# Your personal data: profile, resumes, scraped postings, application log
-config/profile.json
-documents/
+# Everything about you: profile, private details, resume, LinkedIn, samples
+me/
+
+# Runtime data: database, reports, letters, screenshots, logs, backups, job-list clones
 data/
+
+# Your settings and private test fixtures captured from real pages
+config/settings.yaml
+test/fixtures/private/
 
 # Secrets
 .env
