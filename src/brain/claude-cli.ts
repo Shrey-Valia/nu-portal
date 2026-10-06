@@ -52,7 +52,7 @@ export class ClaudeCliBrain implements Brain {
   async structured<T>(req: StructuredRequest<T>): Promise<{ data: T; meta: BrainMeta }> {
     const release = await this.slot();
     try {
-      const schemaJson = JSON.stringify(z.toJSONSchema(req.schema));
+      const schemaJson = cliSchema(req.schema);
       let prompt = req.prompt;
       let totalCost = 0;
       const started = Date.now();
@@ -132,6 +132,12 @@ export class ClaudeCliBrain implements Brain {
       return { ok: false, detail: (err as Error).message };
     }
   }
+}
+
+// The CLI's validator only knows draft-07, so target it and drop the $schema URI.
+export function cliSchema(schema: z.ZodType): string {
+  const { $schema: _, ...rest } = z.toJSONSchema(schema, { target: "draft-7" }) as Record<string, unknown>;
+  return JSON.stringify(rest);
 }
 
 // --json-schema puts the parsed object in structured_output; older builds put JSON text in result.

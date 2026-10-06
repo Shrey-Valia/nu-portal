@@ -8,6 +8,8 @@ const COMMANDS: Record<string, { load: () => Promise<Command>; help: string }> =
   "session:check": { load: () => import("./commands/session-check.js"), help: "Check whether your saved NUworks session still works" },
   doctor: { load: () => import("./commands/doctor.js"), help: "Check setup (--brain, --session, --launchd)" },
   backup: { load: () => import("./commands/backup.js"), help: "Snapshot the database to data/backups" },
+  "profile:check": { load: () => import("./commands/profile-check.js"), help: "Show what NU Portal knows about you, and what's missing" },
+  "letter:sample": { load: () => import("./commands/letter-sample.js"), help: "Draft + humanize a letter or answer for a pasted posting" },
 };
 
 async function main(): Promise<number> {
