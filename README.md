@@ -51,7 +51,10 @@ npm run login                                         # sign in to NUworks once
 | [`playwright`](https://github.com/microsoft/playwright-mcp) | Drive a browser, read the accessibility tree, prototype the scrape and apply flows |
 | [`chrome-devtools`](https://github.com/ChromeDevTools/chrome-devtools-mcp) | Inspect the DOM, network requests, and console on NUworks pages |
 
-The [Vercel MCP](https://vercel.com/docs/mcp/vercel-mcp) (`https://mcp.vercel.com`) is installed globally, for deploying the tracker dashboard later.
+Two more are installed globally (user scope), so any API keys stay out of this repo:
+
+- [Context7](https://github.com/upstash/context7) (`https://mcp.context7.com/mcp`): pulls up-to-date library docs (Playwright, TypeScript, and so on) into Claude's context. It works without a key at a lower rate limit.
+- [Vercel MCP](https://vercel.com/docs/mcp/vercel-mcp) (`https://mcp.vercel.com`): for deploying the tracker dashboard later.
 
 The first time you open Claude Code in this folder, approve the project MCP servers when prompted. Then run `/mcp` to sign in to Vercel.
 

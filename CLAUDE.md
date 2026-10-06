@@ -18,3 +18,5 @@ Auto-apply assistant for Northeastern's NUworks co-op/job portal (https://nuwork
 ## Building scrapers and form fillers
 
 Use the project MCP servers (`playwright`, `chrome-devtools`) to look at real NUworks pages before writing selectors. Prefer role/label/text locators (`getByRole`, `getByLabel`) over CSS classes, since Symplicity markup changes. Don't guess selectors. Confirm them against the live page.
+
+Use the Context7 MCP (user scope) for current Playwright and library docs instead of relying on memory.
