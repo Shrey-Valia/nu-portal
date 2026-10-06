@@ -30,7 +30,10 @@ export class ClaudeCliBrain implements Brain {
   private waiters: (() => void)[] = [];
   private bin: string | null = null;
 
-  constructor(private readonly settings: Settings["brain"]) {}
+  constructor(
+    private readonly settings: Settings["brain"],
+    private readonly onUsage?: (runId: number, costUsd: number) => void,
+  ) {}
 
   private async slot(): Promise<() => void> {
     if (this.active >= this.settings.concurrency) await new Promise<void>((r) => this.waiters.push(r));
@@ -59,6 +62,7 @@ export class ClaudeCliBrain implements Brain {
       for (let attempt = 1; attempt <= 2; attempt++) {
         const env = await this.run(req, schemaJson, prompt);
         totalCost += env.total_cost_usd ?? 0;
+        if (req.runId) this.onUsage?.(req.runId, env.total_cost_usd ?? 0);
         const parsed = req.schema.safeParse(extract(env));
         if (parsed.success) {
           return {

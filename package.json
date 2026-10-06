@@ -17,7 +17,15 @@
     "test": "node --disable-warning=ExperimentalWarning --import tsx --test \"test/**/*.test.ts\"",
     "typecheck": "tsc --noEmit",
     "profile:check": "node --disable-warning=ExperimentalWarning --import tsx src/cli.ts profile:check",
-    "letter:sample": "node --disable-warning=ExperimentalWarning --import tsx src/cli.ts letter:sample"
+    "letter:sample": "node --disable-warning=ExperimentalWarning --import tsx src/cli.ts letter:sample",
+    "daily": "node --disable-warning=ExperimentalWarning --import tsx src/cli.ts daily",
+    "offer": "node --disable-warning=ExperimentalWarning --import tsx src/cli.ts offer",
+    "schedule": "node --disable-warning=ExperimentalWarning --import tsx src/cli.ts schedule",
+    "apply": "node --disable-warning=ExperimentalWarning --import tsx src/cli.ts apply",
+    "recon": "node --disable-warning=ExperimentalWarning --import tsx src/cli.ts recon",
+    "sources:pull": "node --disable-warning=ExperimentalWarning --import tsx src/cli.ts sources:pull",
+    "serve": "node --disable-warning=ExperimentalWarning --import tsx src/cli.ts serve",
+    "report": "node --disable-warning=ExperimentalWarning --import tsx src/cli.ts report"
   },
   "dependencies": {
     "playwright": "^1.48.0",

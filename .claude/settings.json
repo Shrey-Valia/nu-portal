@@ -24,6 +24,11 @@
     ],
     "deny": [
       "Bash(*--live*)",
+      "Bash(*--mode live*)",
+      "Bash(*--mode=live*)",
+      "Bash(*--via schedule*)",
+      "Bash(*NUPORTAL_LAUNCHD*)",
+      "Bash(*NUPORTAL_DASHBOARD_LIVE_TOKEN*)",
       "Read(./me/private.yaml)",
       "Edit(./me/private.yaml)",
       "Read(./.auth/**)"

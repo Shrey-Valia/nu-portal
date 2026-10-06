@@ -9,7 +9,7 @@ import { SettingsSchema } from "../src/config/settings.js";
 import { canTransition, JOB_STATES } from "../src/core/states.js";
 import { transition } from "../src/core/events.js";
 import { acquireLock, LockBusyError } from "../src/core/lock.js";
-import { getKv, now, openDb, setKv } from "../src/db/db.js";
+import { getKv, now, openDb, setKv, tx } from "../src/db/db.js";
 import { extract } from "../src/brain/claude-cli.js";
 import { AnswerBankSchema, PrivateSchema, ProfileSchema } from "../src/me/schema.js";
 import { knownSourceIds, loadMe, parseStories, profileForBrain } from "../src/me/load.js";
@@ -49,6 +49,23 @@ test("database migrates and transitions are logged", () => {
   assert.equal(events.length, 2);
   setKv(db, "halted", true);
   assert.equal(getKv(db, "halted", false), true);
+});
+
+test("tx nests with savepoints and rolls back only the inner part", () => {
+  const db = openDb(":memory:");
+  tx(db, () => {
+    setKv(db, "outer", 1);
+    assert.throws(() =>
+      tx(db, () => {
+        setKv(db, "inner", 1);
+        throw new Error("boom");
+      }),
+    );
+    tx(db, () => setKv(db, "inner2", 1));
+  });
+  assert.equal(getKv(db, "outer", 0), 1);
+  assert.equal(getKv(db, "inner", 0), 0);
+  assert.equal(getKv(db, "inner2", 0), 1);
 });
 
 test("locks are exclusive and released", () => {

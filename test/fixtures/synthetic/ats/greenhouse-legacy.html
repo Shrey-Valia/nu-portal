@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- Synthetic reconstruction of the legacy boards.greenhouse.io form (fake company): native inputs,
+     labels that wrap their select/textarea, asterisk spans, EEOC selects and an input#submit_app button.
+     The page validates in JS and shows per-field errors plus a banner, which the validation test relies on. -->
+<title>Job Application for Robotics Software Co-op at Acme Robotics</title>
+<style>
+  body { font-family: sans-serif; max-width: 720px; margin: 0 auto; }
+  .field { margin: 12px 0; }
+  .field-error-msg { color: #b00020; display: block; }
+  #error_banner { display: none; color: #b00020; border: 1px solid #b00020; padding: 8px; }
+</style>
+</head>
+<body>
+<div id="app_body">
+  <div id="header"><h1 class="app-title">Robotics Software Co-op</h1><span class="company-name">at Acme Robotics</span></div>
+  <div id="content"><p>Synthetic legacy posting for tests.</p></div>
+  <div id="application">
+    <div id="error_banner" class="error" role="alert"></div>
+    <form id="application_form" action="/submit/greenhouse-legacy" method="post" enctype="multipart/form-data" novalidate>
+      <div id="main_fields">
+        <div class="field">
+          <label for="first_name">First Name <span class="asterisk">*</span></label>
+          <input type="text" id="first_name" name="job_application[first_name]" aria-required="true" maxlength="255">
+        </div>
+        <div class="field">
+          <label for="last_name">Last Name <span class="asterisk">*</span></label>
+          <input type="text" id="last_name" name="job_application[last_name]" aria-required="true" maxlength="255">
+        </div>
+        <div class="field">
+          <label for="email">Email <span class="asterisk">*</span></label>
+          <input type="text" id="email" name="job_application[email]" aria-required="true" maxlength="255">
+        </div>
+        <div class="field">
+          <label for="phone">Phone</label>
+          <input type="text" id="phone" name="job_application[phone]" maxlength="255">
+        </div>
+        <div class="field" id="resume_fieldset">
+          <label for="resume_file">Resume/CV <span class="asterisk">*</span></label>
+          <input type="file" id="resume_file" name="job_application[resume]" aria-required="true">
+        </div>
+      </div>
+      <div id="custom_fields">
+        <div class="field">
+          <label>LinkedIn Profile
+            <input type="text" name="job_application[answers_attributes][0][text_value]" maxlength="255">
+          </label>
+          <input type="hidden" name="job_application[answers_attributes][0][question_id]" value="501">
+        </div>
+        <div class="field">
+          <label>Are you legally authorized to work in the United States? <span class="asterisk">*</span>
+            <br>
+            <select name="job_application[answers_attributes][1][boolean_value]" aria-required="true">
+              <option value="">--</option>
+              <option value="1">Yes</option>
+              <option value="0">No</option>
+            </select>
+          </label>
+          <input type="hidden" name="job_application[answers_attributes][1][question_id]" value="502">
+        </div>
+        <div class="field">
+          <label>What excites you about robotics? <span class="asterisk">*</span>
+            <textarea name="job_application[answers_attributes][2][text_value]" aria-required="true" rows="4"></textarea>
+          </label>
+          <input type="hidden" name="job_application[answers_attributes][2][question_id]" value="503">
+        </div>
+      </div>
+      <div id="eeoc_fields">
+        <div class="field">
+          <label for="job_application_gender">Gender</label>
+          <select id="job_application_gender" name="job_application[gender]">
+            <option value="">Please select</option>
+            <option value="1">Male</option>
+            <option value="2">Female</option>
+            <option value="3">Decline To Self Identify</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="job_application_veteran_status">Veteran Status</label>
+          <select id="job_application_veteran_status" name="job_application[veteran_status]">
+            <option value="">Please select</option>
+            <option value="1">I am not a protected veteran</option>
+            <option value="2">I identify as one or more of the classifications of protected veteran</option>
+            <option value="3">I don't wish to answer</option>
+          </select>
+        </div>
+      </div>
+      <div id="submit_buttons"><input type="button" id="submit_app" value="Submit Application"></div>
+    </form>
+  </div>
+</div>
+<script>
+(function () {
+  var form = document.getElementById("application_form");
+  document.getElementById("submit_app").addEventListener("click", function () {
+    Array.prototype.forEach.call(form.querySelectorAll(".field-error-msg"), function (n) { n.remove(); });
+    var missing = [];
+    Array.prototype.forEach.call(form.querySelectorAll("[aria-required=true]"), function (c) {
+      var empty = c.type === "file" ? !c.files.length : !c.value.trim();
+      if (!empty) return;
+      var field = c.closest(".field");
+      var label = field.querySelector("label").childNodes[0].textContent.trim();
+      missing.push(label);
+      var m = document.createElement("span");
+      m.className = "field-error-msg";
+      m.textContent = "This field is required.";
+      field.appendChild(m);
+    });
+    var banner = document.getElementById("error_banner");
+    if (missing.length) {
+      banner.textContent = "There were errors with your application. Please complete: " + missing.join(", ");
+      banner.style.display = "block";
+      return;
+    }
+    banner.style.display = "none";
+    form.submit();
+  });
+})();
+</script>
+</body>
+</html>

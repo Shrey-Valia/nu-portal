@@ -35,15 +35,24 @@ export function migrate(db: Db): void {
   }
 }
 
+// Re-entrant: the outermost call opens the transaction, nested calls use
+// savepoints, so helpers like transition() can be called from inside tx().
+const depth = new WeakMap<Db, number>();
+
 export function tx<T>(db: Db, fn: () => T): T {
-  db.exec("BEGIN IMMEDIATE");
+  const level = depth.get(db) ?? 0;
+  const sp = `sp_${level}`;
+  db.exec(level === 0 ? "BEGIN IMMEDIATE" : `SAVEPOINT ${sp}`);
+  depth.set(db, level + 1);
   try {
     const result = fn();
-    db.exec("COMMIT");
+    db.exec(level === 0 ? "COMMIT" : `RELEASE ${sp}`);
     return result;
   } catch (err) {
-    db.exec("ROLLBACK");
+    db.exec(level === 0 ? "ROLLBACK" : `ROLLBACK TO ${sp}; RELEASE ${sp}`);
     throw err;
+  } finally {
+    depth.set(db, level);
   }
 }
 

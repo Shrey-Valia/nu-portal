@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- Synthetic reconstruction of a jobs.ashbyhq.com/<company>/<id>/application page (fake company).
+     Like the real SPA there is no <form>: field entries are div.ashby-application-form-field-entry
+     [data-field-path] with label.ashby-application-form-question-title; required labels carry a hashed
+     "_required_xxxxx" class; yes/no questions are two buttons plus a hidden checkbox; radio and checkbox
+     groups are fieldsets; location is an autocomplete combobox; the graduation date uses a date-picker
+     text input; the EEO survey sits in .ashby-survey-form-container. The submit button validates, posts
+     JSON with fetch, and swaps the form for a success container in place. -->
+<title>Robotics Software Co-op @ Acme Robotics</title>
+<style>
+  body { font-family: sans-serif; max-width: 760px; margin: 0 auto 60px; }
+  .ashby-application-form-field-entry, [data-field-path] { margin: 14px 0; }
+  ._required_q8x2k_91::after { content: "*"; color: #c00; margin-left: 2px; }
+  .ashby-application-form-question-title { display: block; font-weight: 600; }
+  .ashby-application-form-input-yesno button[aria-pressed=true] { background: #234; color: #fff; }
+  .ashby-application-form-input-file input[type=file] { position: absolute; opacity: 0; width: 1px; height: 1px; }
+  .loc-wrap { position: relative; }
+  .loc-listbox { position: absolute; left: 0; right: 0; background: #fff; border: 1px solid #888; z-index: 4; }
+  .loc-listbox [role=option] { padding: 4px 8px; cursor: pointer; }
+  ._yesnoInput_d3r9w_78 { position: absolute; opacity: 0; pointer-events: none; }
+  ._errorBox_k2j3h_1 { color: #b00020; border: 1px solid #b00020; padding: 8px; }
+</style>
+</head>
+<body>
+<div id="root">
+  <div class="ashby-job-posting-header"><ul><li><a href="#"><img alt="Acme Robotics" src="data:,"></a></li></ul></div>
+  <div><h1 class="ashby-job-posting-heading">Robotics Software Co-op</h1></div>
+  <div class="ashby-job-posting-left-pane"><h2>Location</h2><p>Boston, Massachusetts</p><h2>Employment Type</h2><p>Intern</p></div>
+  <div class="ashby-job-posting-right-pane">
+    <nav role="tablist"><a role="tab" aria-selected="false" href="#">Overview</a><a role="tab" aria-selected="true" id="job-application-form" href="#">Application</a></nav>
+    <div tabindex="0" role="tabpanel" aria-labelledby="job-application-form" id="form">
+      <div class="ashby-application-form-autofill-uploader">
+        <div role="presentation" class="ashby-application-form-autofill-input-root">
+          <input type="file" tabindex="-1" style="display:none">
+          <h3 class="ashby-application-form-autofill-input-title">Autofill from resume</h3>
+          <p>Upload your resume here to autofill key application fields.</p>
+          <button class="_button_a1b2c_28">Upload file</button>
+        </div>
+      </div>
+
+      <div class="ashby-application-form-container" id="main-container">
+        <div class="ashby-application-form-section-container">
+          <div class="ashby-application-form-field-entry" data-field-path="_systemfield_name">
+            <label class="_heading_f7cvd_52 _required_q8x2k_91 ashby-application-form-question-title" for="_systemfield_name">Full Name</label>
+            <div><input placeholder="Type here..." name="_systemfield_name" required id="_systemfield_name" type="text" class="ashby-application-form-input-text" value=""></div>
+          </div>
+          <div class="ashby-application-form-field-entry" data-field-path="_systemfield_email">
+            <label class="_heading_f7cvd_52 _required_q8x2k_91 ashby-application-form-question-title" for="_systemfield_email">Email</label>
+            <div><input placeholder="hello@example.com..." name="_systemfield_email" required id="_systemfield_email" type="email" class="ashby-application-form-input-text" value=""></div>
+          </div>
+          <div class="ashby-application-form-field-entry" data-field-path="0b0c9a52-5d55-4c1e-9d8c-1d2a7f3e4a01">
+            <label class="_heading_f7cvd_52 _required_q8x2k_91 ashby-application-form-question-title" for="0b0c9a52-5d55-4c1e-9d8c-1d2a7f3e4a01">Phone</label>
+            <input placeholder="1-415-555-1234..." name="0b0c9a52-5d55-4c1e-9d8c-1d2a7f3e4a01" required id="0b0c9a52-5d55-4c1e-9d8c-1d2a7f3e4a01" type="tel" class="ashby-application-form-input-text" value="">
+          </div>
+          <div class="ashby-application-form-field-entry" data-field-path="_systemfield_resume">
+            <label class="_heading_f7cvd_52 _required_q8x2k_91 ashby-application-form-question-title" for="_systemfield_resume">Resume</label>
+            <div role="presentation" class="ashby-application-form-input-file">
+              <input type="file" tabindex="-1" id="_systemfield_resume" required accept=".pdf,.doc,.docx,.txt">
+              <div class="ashby-application-form-input-file-dropzone"><button class="ashby-application-form-input-file-dropzone-upload" type="button"><span>Upload File</span></button>
+                <p class="ashby-application-form-input-file-dropzone-instructions">or drag and drop here</p><span class="file-name"></span></div>
+            </div>
+          </div>
+          <div class="ashby-application-form-field-entry" data-field-path="0b0c9a52-5d55-4c1e-9d8c-1d2a7f3e4a02">
+            <label class="_heading_f7cvd_52 ashby-application-form-question-title" for="0b0c9a52-5d55-4c1e-9d8c-1d2a7f3e4a02">LinkedIn Profile</label>
+            <div><input placeholder="Type here..." name="0b0c9a52-5d55-4c1e-9d8c-1d2a7f3e4a02" id="0b0c9a52-5d55-4c1e-9d8c-1d2a7f3e4a02" type="text" class="ashby-application-form-input-text" value=""></div>
+          </div>
+          <div class="ashby-application-form-field-entry" data-field-path="_systemfield_location">
+            <label class="_heading_f7cvd_52 _required_q8x2k_91 ashby-application-form-question-title" for="_systemfield_location">Current Location</label>
+            <div class="loc-wrap"><input class="ashby-application-form-input-autocomplete" placeholder="Start typing..." aria-autocomplete="list" aria-expanded="false" aria-haspopup="listbox" role="combobox" value=""><button type="button" aria-label="clear">×</button></div>
+          </div>
+        </div>
+        <div class="ashby-application-form-section-container">
+          <div class="ashby-application-form-field-entry" data-field-path="0b0c9a52-5d55-4c1e-9d8c-1d2a7f3e4a03">
+            <label class="_heading_f7cvd_52 _required_q8x2k_91 ashby-application-form-question-title" for="0b0c9a52-5d55-4c1e-9d8c-1d2a7f3e4a03">Are you authorized to work lawfully in the United States?</label>
+            <div class="_container_1svni_28 ashby-application-form-input-yesno">
+              <button class="ashby-application-form-input-yesno-option" type="button" aria-pressed="false" data-option="yes">Yes</button>
+              <button class="ashby-application-form-input-yesno-option" type="button" aria-pressed="false" data-option="no">No</button>
+              <input type="checkbox" class="_yesnoInput_d3r9w_78" tabindex="-1" name="0b0c9a52-5d55-4c1e-9d8c-1d2a7f3e4a03">
+            </div>
+          </div>
+          <div class="ashby-application-form-field-entry" data-field-path="0b0c9a52-5d55-4c1e-9d8c-1d2a7f3e4a04">
+            <label class="_heading_f7cvd_52 _required_q8x2k_91 ashby-application-form-question-title" for="0b0c9a52-5d55-4c1e-9d8c-1d2a7f3e4a04">Will you now or at any time in the future require sponsorship for employment visa status (e.g. H1B, OPT)?</label>
+            <div class="_container_1svni_28 ashby-application-form-input-yesno">
+              <button class="ashby-application-form-input-yesno-option" type="button" aria-pressed="false" data-option="yes">Yes</button>
+              <button class="ashby-application-form-input-yesno-option" type="button" aria-pressed="false" data-option="no">No</button>
+              <input type="checkbox" class="_yesnoInput_d3r9w_78" tabindex="-1" name="0b0c9a52-5d55-4c1e-9d8c-1d2a7f3e4a04">
+            </div>
+          </div>
+          <div data-field-path="0b0c9a52-5d55-4c1e-9d8c-1d2a7f3e4a05">
+            <fieldset class="_fieldEntry_1e3gg_28 ashby-application-form-input-radio-group">
+              <label class="_heading_f7cvd_52 _required_q8x2k_91 ashby-application-form-question-title" for="0b0c9a52-5d55-4c1e-9d8c-1d2a7f3e4a05">How many prior internships or co-ops have you had?</label>
+              <div class="ashby-application-form-input-radio-group-option"><span><input type="radio" id="e1_0b0c9a52-5d55-4c1e-9d8c-1d2a7f3e4a05-labeled-radio-0" name="e1_0b0c9a52-5d55-4c1e-9d8c-1d2a7f3e4a05" class="ashby-application-form-input-radio-group-option-radio"></span><label for="e1_0b0c9a52-5d55-4c1e-9d8c-1d2a7f3e4a05-labeled-radio-0" class="ashby-application-form-input-radio-group-option-label">0</label></div>
+              <div class="ashby-application-form-input-radio-group-option"><span><input type="radio" id="e1_0b0c9a52-5d55-4c1e-9d8c-1d2a7f3e4a05-labeled-radio-1" name="e1_0b0c9a52-5d55-4c1e-9d8c-1d2a7f3e4a05" class="ashby-application-form-input-radio-group-option-radio"></span><label for="e1_0b0c9a52-5d55-4c1e-9d8c-1d2a7f3e4a05-labeled-radio-1" class="ashby-application-form-input-radio-group-option-label">1</label></div>
+              <div class="ashby-application-form-input-radio-group-option"><span><input type="radio" id="e1_0b0c9a52-5d55-4c1e-9d8c-1d2a7f3e4a05-labeled-radio-2" name="e1_0b0c9a52-5d55-4c1e-9d8c-1d2a7f3e4a05" class="ashby-application-form-input-radio-group-option-radio"></span><label for="e1_0b0c9a52-5d55-4c1e-9d8c-1d2a7f3e4a05-labeled-radio-2" class="ashby-application-form-input-radio-group-option-label">2</label></div>
+              <div class="ashby-application-form-input-radio-group-option"><span><input type="radio" id="e1_0b0c9a52-5d55-4c1e-9d8c-1d2a7f3e4a05-labeled-radio-3" name="e1_0b0c9a52-5d55-4c1e-9d8c-1d2a7f3e4a05" class="ashby-application-form-input-radio-group-option-radio"></span><label for="e1_0b0c9a52-5d55-4c1e-9d8c-1d2a7f3e4a05-labeled-radio-3" class="ashby-application-form-input-radio-group-option-label">3+</label></div>
+            </fieldset>
+          </div>
+          <div class="ashby-application-form-field-entry" data-field-path="0b0c9a52-5d55-4c1e-9d8c-1d2a7f3e4a06">
+            <label class="_heading_f7cvd_52 _required_q8x2k_91 ashby-application-form-question-title" for="0b0c9a52-5d55-4c1e-9d8c-1d2a7f3e4a06">School</label>
+            <div><input placeholder="Type here..." name="0b0c9a52-5d55-4c1e-9d8c-1d2a7f3e4a06" id="0b0c9a52-5d55-4c1e-9d8c-1d2a7f3e4a06" type="text" required class="ashby-application-form-input-text" value=""></div>
+          </div>
+          <div class="ashby-application-form-field-entry" data-field-path="0b0c9a52-5d55-4c1e-9d8c-1d2a7f3e4a07">
+            <label class="_heading_f7cvd_52 _required_q8x2k_91 ashby-application-form-question-title" for="0b0c9a52-5d55-4c1e-9d8c-1d2a7f3e4a07">Graduation Date</label>
+            <div class="react-datepicker-wrapper"><div class="react-datepicker__input-container"><input type="text" placeholder="Pick date..." class="_input_gc9ve_28 ashby-application-form-input-date" required value=""></div></div>
+          </div>
+          <div data-field-path="0b0c9a52-5d55-4c1e-9d8c-1d2a7f3e4a08">
+            <fieldset class="_fieldEntry_1e3gg_28 ashby-application-form-input-checkbox-group">
+              <label class="_heading_f7cvd_52 _required_q8x2k_91 ashby-application-form-question-title" for="0b0c9a52-5d55-4c1e-9d8c-1d2a7f3e4a08">Degree Type</label>
+              <div class="ashby-application-form-input-checkbox-group-option"><span class="ashby-application-form-input-checkbox-group-option-checkbox"><input type="checkbox" id="e1_0b0c9a52-5d55-4c1e-9d8c-1d2a7f3e4a08-labeled-checkbox-0" name="Undergraduate/Bachelors"></span><label for="e1_0b0c9a52-5d55-4c1e-9d8c-1d2a7f3e4a08-labeled-checkbox-0" class="ashby-application-form-input-checkbox-group-option-label">Undergraduate/Bachelors</label></div>
+              <div class="ashby-application-form-input-checkbox-group-option"><span class="ashby-application-form-input-checkbox-group-option-checkbox"><input type="checkbox" id="e1_0b0c9a52-5d55-4c1e-9d8c-1d2a7f3e4a08-labeled-checkbox-1" name="Master's"></span><label for="e1_0b0c9a52-5d55-4c1e-9d8c-1d2a7f3e4a08-labeled-checkbox-1" class="ashby-application-form-input-checkbox-group-option-label">Master's</label></div>
+              <div class="ashby-application-form-input-checkbox-group-option"><span class="ashby-application-form-input-checkbox-group-option-checkbox"><input type="checkbox" id="e1_0b0c9a52-5d55-4c1e-9d8c-1d2a7f3e4a08-labeled-checkbox-2" name="PhD"></span><label for="e1_0b0c9a52-5d55-4c1e-9d8c-1d2a7f3e4a08-labeled-checkbox-2" class="ashby-application-form-input-checkbox-group-option-label">PhD</label></div>
+            </fieldset>
+          </div>
+          <div class="ashby-application-form-field-entry" data-field-path="0b0c9a52-5d55-4c1e-9d8c-1d2a7f3e4a09">
+            <label class="_heading_f7cvd_52 _required_q8x2k_91 ashby-application-form-question-title" for="0b0c9a52-5d55-4c1e-9d8c-1d2a7f3e4a09">Why do you want to work at Acme Robotics?</label>
+            <p class="ashby-application-form-question-description">Two or three sentences.</p>
+            <textarea placeholder="Type here..." name="0b0c9a52-5d55-4c1e-9d8c-1d2a7f3e4a09" id="0b0c9a52-5d55-4c1e-9d8c-1d2a7f3e4a09" required class="ashby-application-form-input-text"></textarea>
+          </div>
+          <div class="ashby-application-form-field-entry" data-field-path="0b0c9a52-5d55-4c1e-9d8c-1d2a7f3e4a10">
+            <label class="_heading_f7cvd_52 ashby-application-form-question-title" for="0b0c9a52-5d55-4c1e-9d8c-1d2a7f3e4a10">Github Link</label>
+            <div><input placeholder="Type here..." name="0b0c9a52-5d55-4c1e-9d8c-1d2a7f3e4a10" id="0b0c9a52-5d55-4c1e-9d8c-1d2a7f3e4a10" type="text" class="ashby-application-form-input-text" value=""></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ashby-survey-form-container"><div class="ashby-application-form-container">
+        <div class="ashby-application-form-section-container">
+          <div class="ashby-application-form-section-header"><p><strong>U.S. EQUAL EMPLOYMENT OPPORTUNITY INFORMATION</strong> (Completion is voluntary)</p></div>
+          <div data-field-path="_systemfield_eeoc_gender"><fieldset class="ashby-application-form-input-radio-group">
+            <label class="_heading_f7cvd_52 ashby-application-form-question-title" for="_systemfield_eeoc_gender">Gender</label>
+            <div class="ashby-application-form-input-radio-group-option"><span><input type="radio" id="s1__systemfield_eeoc_gender-labeled-radio-0" name="s1__systemfield_eeoc_gender"></span><label for="s1__systemfield_eeoc_gender-labeled-radio-0">Male</label></div>
+            <div class="ashby-application-form-input-radio-group-option"><span><input type="radio" id="s1__systemfield_eeoc_gender-labeled-radio-1" name="s1__systemfield_eeoc_gender"></span><label for="s1__systemfield_eeoc_gender-labeled-radio-1">Female</label></div>
+            <div class="ashby-application-form-input-radio-group-option"><span><input type="radio" id="s1__systemfield_eeoc_gender-labeled-radio-2" name="s1__systemfield_eeoc_gender"></span><label for="s1__systemfield_eeoc_gender-labeled-radio-2">Decline to self-identify</label></div>
+          </fieldset></div>
+          <div data-field-path="_systemfield_eeoc_race"><fieldset class="ashby-application-form-input-radio-group">
+            <label class="_heading_f7cvd_52 ashby-application-form-question-title" for="_systemfield_eeoc_race">Race</label>
+            <div class="ashby-application-form-input-radio-group-option"><span><input type="radio" id="s1__systemfield_eeoc_race-labeled-radio-0" name="s1__systemfield_eeoc_race"></span><label for="s1__systemfield_eeoc_race-labeled-radio-0">Hispanic or Latino</label></div>
+            <div class="ashby-application-form-input-radio-group-option"><span><input type="radio" id="s1__systemfield_eeoc_race-labeled-radio-1" name="s1__systemfield_eeoc_race"></span><label for="s1__systemfield_eeoc_race-labeled-radio-1">Asian (Not Hispanic or Latino)</label></div>
+            <div class="ashby-application-form-input-radio-group-option"><span><input type="radio" id="s1__systemfield_eeoc_race-labeled-radio-2" name="s1__systemfield_eeoc_race"></span><label for="s1__systemfield_eeoc_race-labeled-radio-2">Decline to self-identify</label></div>
+          </fieldset></div>
+          <div data-field-path="_systemfield_eeoc_veteran_status"><fieldset class="ashby-application-form-input-radio-group">
+            <label class="_heading_f7cvd_52 ashby-application-form-question-title" for="_systemfield_eeoc_veteran_status">Veteran Status</label>
+            <div class="ashby-application-form-input-radio-group-option"><span><input type="radio" id="s1__systemfield_eeoc_veteran_status-labeled-radio-0" name="s1__systemfield_eeoc_veteran_status"></span><label for="s1__systemfield_eeoc_veteran_status-labeled-radio-0">I identify as one or more of the classifications of protected veteran listed above</label></div>
+            <div class="ashby-application-form-input-radio-group-option"><span><input type="radio" id="s1__systemfield_eeoc_veteran_status-labeled-radio-1" name="s1__systemfield_eeoc_veteran_status"></span><label for="s1__systemfield_eeoc_veteran_status-labeled-radio-1">I am not a protected veteran</label></div>
+            <div class="ashby-application-form-input-radio-group-option"><span><input type="radio" id="s1__systemfield_eeoc_veteran_status-labeled-radio-2" name="s1__systemfield_eeoc_veteran_status"></span><label for="s1__systemfield_eeoc_veteran_status-labeled-radio-2">I decline to self-identify for protected veteran status</label></div>
+          </fieldset></div>
+        </div>
+      </div></div>
+      <div id="errors"></div>
+      <button class="_button_zyh3g_28 _primary_zyh3g_97 ashby-application-form-submit-button" type="button"><span>Submit Application</span></button>
+    </div>
+  </div>
+</div>
+<div class="grecaptcha-badge" style="visibility:hidden"><iframe title="reCAPTCHA" width="256" height="60" src="/recaptcha/api2/anchor?ar=1&amp;k=fake-site-key&amp;size=invisible"></iframe></div>
+<script>
+(function () {
+  var panel = document.getElementById("form");
+
+  // Yes/No buttons.
+  Array.prototype.forEach.call(document.querySelectorAll(".ashby-application-form-input-yesno"), function (box) {
+    var buttons = box.querySelectorAll("button");
+    var hidden = box.querySelector("input");
+    Array.prototype.forEach.call(buttons, function (b) {
+      b.addEventListener("click", function () {
+        Array.prototype.forEach.call(buttons, function (x) { x.setAttribute("aria-pressed", x === b ? "true" : "false"); });
+        hidden.checked = b.getAttribute("data-option") === "yes";
+        box.setAttribute("data-answered", "1");
+      });
+    });
+  });
+
+  // Location autocomplete.
+  var PLACES = ["Boston, MA, USA", "Boston, Lincolnshire, UK", "Bostonia, CA, USA", "New York, NY, USA"];
+  var loc = document.querySelector(".ashby-application-form-input-autocomplete");
+  var listbox = null;
+  var timer = null;
+  function closeLoc() { if (listbox) listbox.remove(); listbox = null; loc.setAttribute("aria-expanded", "false"); loc.removeAttribute("aria-controls"); }
+  loc.addEventListener("input", function () {
+    loc.removeAttribute("data-selected");
+    clearTimeout(timer);
+    timer = setTimeout(function () {
+      closeLoc();
+      var q = loc.value.split(",")[0].trim().toLowerCase();
+      if (q.length < 2) return;
+      listbox = document.createElement("div");
+      listbox.className = "loc-listbox";
+      listbox.id = "loc-listbox";
+      listbox.setAttribute("role", "listbox");
+      PLACES.filter(function (p) { return p.toLowerCase().indexOf(q) !== -1; }).forEach(function (p, i) {
+        var o = document.createElement("div");
+        o.setAttribute("role", "option");
+        o.id = "loc-option-" + i;
+        o.textContent = p;
+        o.addEventListener("click", function () { loc.value = p; loc.setAttribute("data-selected", "1"); closeLoc(); });
+        listbox.appendChild(o);
+      });
+      loc.parentElement.appendChild(listbox);
+      loc.setAttribute("aria-expanded", "true");
+      loc.setAttribute("aria-controls", "loc-listbox");
+    }, 300);
+  });
+
+  // Follow-up question that only appears once a non-zero internship count is picked.
+  var internships = document.querySelector('[data-field-path="0b0c9a52-5d55-4c1e-9d8c-1d2a7f3e4a05"]');
+  internships.addEventListener("change", function () {
+    var r = internships.querySelector("input:checked");
+    var answer = r ? internships.querySelector('label[for="' + r.id + '"]').textContent : "0";
+    var existing = document.querySelector('[data-field-path="0b0c9a52-5d55-4c1e-9d8c-1d2a7f3e4a11"]');
+    if (answer !== "0" && !existing) {
+      var d = document.createElement("div");
+      d.className = "ashby-application-form-field-entry";
+      d.setAttribute("data-field-path", "0b0c9a52-5d55-4c1e-9d8c-1d2a7f3e4a11");
+      d.innerHTML = '<label class="_heading_f7cvd_52 _required_q8x2k_91 ashby-application-form-question-title" for="0b0c9a52-5d55-4c1e-9d8c-1d2a7f3e4a11">Where was your most recent internship or co-op?</label>' +
+        '<div><input placeholder="Type here..." type="text" id="0b0c9a52-5d55-4c1e-9d8c-1d2a7f3e4a11" name="0b0c9a52-5d55-4c1e-9d8c-1d2a7f3e4a11" required class="ashby-application-form-input-text" value=""></div>';
+      internships.after(d);
+    }
+    if (answer === "0" && existing) existing.remove();
+  });
+
+  // Resume upload: spinner, then file name.
+  var resume = document.getElementById("_systemfield_resume");
+  resume.parentElement.querySelector("button").addEventListener("click", function () { resume.click(); });
+  resume.addEventListener("change", function () {
+    var zone = resume.parentElement.querySelector(".ashby-application-form-input-file-dropzone");
+    var spin = document.createElement("span");
+    spin.setAttribute("role", "progressbar");
+    spin.setAttribute("aria-label", "Loading...");
+    zone.appendChild(spin);
+    setTimeout(function () { spin.remove(); zone.querySelector(".file-name").textContent = resume.files[0] ? resume.files[0].name : ""; }, 400);
+  });
+
+  // Submit: validate required questions, then post JSON and replace the form.
+  document.querySelector(".ashby-application-form-submit-button").addEventListener("click", function () {
+    var missing = [];
+    var data = {};
+    Array.prototype.forEach.call(panel.querySelectorAll("[data-field-path]"), function (entry) {
+      if (entry.closest(".ashby-application-form-autofill-uploader")) return;
+      var path = entry.getAttribute("data-field-path");
+      var title = entry.querySelector(".ashby-application-form-question-title");
+      var required = title && /_required_/.test(title.className);
+      var value = "";
+      var yesno = entry.querySelector(".ashby-application-form-input-yesno");
+      if (yesno) value = yesno.getAttribute("data-answered") ? (yesno.querySelector("input").checked ? "yes" : "no") : "";
+      else if (entry.querySelector("input[type=radio]")) { var r = entry.querySelector("input:checked"); value = r ? entry.querySelector('label[for="' + r.id + '"]').textContent : ""; }
+      else if (entry.querySelector("input[type=checkbox]")) value = Array.prototype.map.call(entry.querySelectorAll("input:checked"), function (c) { return c.name; }).join("|");
+      else if (entry.querySelector("input[type=file]")) { var f = entry.querySelector("input[type=file]"); value = f.files.length ? f.files[0].name : ""; }
+      else if (entry.querySelector(".ashby-application-form-input-autocomplete")) value = entry.querySelector("input").getAttribute("data-selected") ? entry.querySelector("input").value : "";
+      else { var c = entry.querySelector("input, textarea"); value = c ? c.value.trim() : ""; }
+      data[path] = value;
+      if (required && !value) missing.push(title.textContent.trim());
+    });
+    var errors = document.getElementById("errors");
+    if (missing.length) {
+      errors.innerHTML = "";
+      var boxEl = document.createElement("div");
+      boxEl.className = "_errorBox_k2j3h_1";
+      boxEl.setAttribute("role", "alert");
+      boxEl.innerHTML = "<p>Your form needs corrections</p>";
+      var ul = document.createElement("ul");
+      missing.forEach(function (m) { var li = document.createElement("li"); li.textContent = "Missing entry for required field: " + m; ul.appendChild(li); });
+      boxEl.appendChild(ul);
+      errors.appendChild(boxEl);
+      return;
+    }
+    fetch("/submit/ashby", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(data) })
+      .then(function (r) { if (!r.ok) throw new Error("bad status"); return r.json(); })
+      .then(function () {
+        panel.innerHTML = '<div class="ashby-application-form-success-container"><h2>Thank you for applying!</h2><p>Your application was successfully submitted. We\'ll contact you if there are next steps.</p></div>';
+      });
+  });
+})();
+</script>
+</body>
+</html>

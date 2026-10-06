@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- Synthetic reconstruction of the job-boards.greenhouse.io application form (React/Remix UI).
+     Fake company. Structure mirrors the real markup: labelled inputs with ids, react-select style
+     comboboxes (input[role=combobox] + listbox opened on click), "Attach" buttons over visually hidden
+     file inputs inside div[role=group][aria-labelledby], an education block, EEO dropdowns and an
+     invisible reCAPTCHA badge. Submit is handled by JS validation, then a POST to the test server. -->
+<title>Job Application for Robotics Software Co-op at Acme Robotics</title>
+<style>
+  body { font-family: sans-serif; max-width: 760px; margin: 0 auto; }
+  .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .field-wrapper { margin: 14px 0; }
+  .select-shell { position: relative; }
+  .select__control { display: flex; border: 1px solid #999; min-height: 32px; align-items: center; }
+  .select__value-container { flex: 1; display: grid; padding: 2px 6px; }
+  .select__placeholder, .select__single-value, .select__input-container { grid-area: 1 / 1; }
+  .select__placeholder { color: #888; }
+  .select__input { border: 0; outline: 0; width: 100%; background: transparent; }
+  .select__menu { position: absolute; z-index: 5; left: 0; right: 0; background: #fff; border: 1px solid #999; max-height: 220px; overflow: auto; }
+  .select__option { padding: 4px 8px; cursor: pointer; }
+  .select__option--is-focused { background: #e8eefc; }
+  .select__required { position: absolute; opacity: 0; width: 1px; height: 1px; bottom: 0; left: 0; }
+  .helper-text--error { color: #b00020; font-size: 13px; }
+  .grecaptcha-badge { position: fixed; right: 0; bottom: 14px; }
+</style>
+</head>
+<body>
+<div class="job__header">
+  <h1 class="section-header">Robotics Software Co-op</h1>
+  <p class="company-name">Acme Robotics</p>
+</div>
+<div class="job__description">
+  <p>Synthetic posting used by the NU Portal test suite. Build software for warehouse robots.</p>
+  <p>Thank you for your interest in Acme Robotics!</p>
+  <button type="button" class="btn btn--rounded" aria-label="Apply">Apply</button>
+</div>
+
+<form id="application-form" class="application--form" method="post" action="/submit/greenhouse" enctype="multipart/form-data" novalidate>
+<div class="application--questions">
+  <div class="field-wrapper"><div class="text-input-wrapper"><div class="input-wrapper">
+    <label id="first_name-label" for="first_name" class="label">First Name<span aria-hidden="true">*</span></label>
+    <input id="first_name" name="first_name" class="input input__single-line" aria-label="First Name" aria-describedby="first_name-description first_name-error first_name-help" aria-invalid="false" aria-errormessage="first_name-error" aria-required="true" type="text" maxlength="255" autocomplete="given-name" value="">
+    <div id="first_name-error" class="helper-text helper-text--error"></div>
+  </div></div></div>
+  <div class="field-wrapper"><div class="text-input-wrapper"><div class="input-wrapper">
+    <label id="last_name-label" for="last_name" class="label">Last Name<span aria-hidden="true">*</span></label>
+    <input id="last_name" name="last_name" class="input input__single-line" aria-label="Last Name" aria-describedby="last_name-error" aria-invalid="false" aria-required="true" type="text" maxlength="255" value="">
+    <div id="last_name-error" class="helper-text helper-text--error"></div>
+  </div></div></div>
+  <div class="field-wrapper"><div class="text-input-wrapper"><div class="input-wrapper">
+    <label id="preferred_name-label" for="preferred_name" class="label">Preferred First Name</label>
+    <input id="preferred_name" name="preferred_name" class="input input__single-line" aria-label="Preferred First Name" aria-describedby="preferred_name-error" aria-invalid="false" aria-required="false" type="text" maxlength="255" value="">
+  </div></div></div>
+  <div class="field-wrapper"><div class="text-input-wrapper"><div class="input-wrapper">
+    <label id="email-label" for="email" class="label">Email<span aria-hidden="true">*</span></label>
+    <input id="email" name="email" class="input input__single-line" aria-label="Email" aria-describedby="email-error" aria-invalid="false" aria-required="true" type="text" maxlength="255" value="">
+    <div id="email-error" class="helper-text helper-text--error"></div>
+  </div></div></div>
+
+  <div class="field-wrapper"><fieldset class="phone-input">
+    <legend class="label visually-hidden">Phone</legend>
+    <div class="phone-input__country" data-combo='{"id":"country","label":"Country","required":true,"options":["United States +1","Afghanistan +93","Åland Islands +358","Canada +1","India +91","Mexico +52","United Kingdom +44","U.S. Virgin Islands +1"]}'></div>
+    <div class="iti"><input type="search" class="iti__search-input" role="combobox" aria-label="Search" style="display:none"></div>
+    <div class="input-wrapper">
+      <label id="phone-label" for="phone" class="label">Phone<span aria-hidden="true">*</span></label>
+      <input id="phone" name="phone" class="input input__single-line iti__tel-input" aria-label="Phone" aria-describedby="phone-error" aria-invalid="false" aria-required="true" type="tel" maxlength="255" value="">
+      <div id="phone-error" class="helper-text helper-text--error"></div>
+    </div>
+  </fieldset></div>
+
+  <div class="field-wrapper" data-combo='{"id":"candidate-location","label":"Location (City)","required":true,"async":"locations"}'></div>
+  <button type="button" class="btn--tertiary">Locate me</button>
+
+  <div class="field-wrapper"><div role="group" aria-labelledby="upload-label-resume" aria-required="true" class="file-upload">
+    <div id="upload-label-resume" class="label upload-label">Resume/CV<span class="required">*</span></div>
+    <div class="file-upload__wrapper">
+      <div class="button-container"><div class="secondary-button">
+        <button type="button" class="btn btn--rounded" data-attach="resume">Attach</button>
+        <label class="visually-hidden" for="resume">Attach</label>
+        <input id="resume" name="resume" class="visually-hidden" type="file" accept=".pdf,.doc,.docx,.txt,.rtf">
+      </div>
+      <div class="secondary-button"><button type="button" class="btn btn--rounded">Dropbox</button></div>
+      <div class="secondary-button"><button type="button" class="btn btn--rounded">Enter manually</button></div></div>
+      <div class="file-upload__filename" id="resume-filename"></div>
+      <p class="file-upload__filetypes">Accepted file types: pdf, doc, docx, txt, rtf</p>
+      <div id="resume-error" class="helper-text helper-text--error"></div>
+    </div>
+  </div></div>
+  <div class="field-wrapper"><div role="group" aria-labelledby="upload-label-cover_letter" aria-required="false" class="file-upload">
+    <div id="upload-label-cover_letter" class="label upload-label">Cover Letter</div>
+    <div class="file-upload__wrapper">
+      <div class="button-container"><div class="secondary-button">
+        <button type="button" class="btn btn--rounded" data-attach="cover_letter">Attach</button>
+        <label class="visually-hidden" for="cover_letter">Attach</label>
+        <input id="cover_letter" name="cover_letter" class="visually-hidden" type="file" accept=".pdf,.doc,.docx,.txt,.rtf">
+      </div></div>
+      <div class="file-upload__filename" id="cover_letter-filename"></div>
+    </div>
+  </div></div>
+
+  <div class="education--container"><div class="education--form"><hr>
+    <div class="education--header"><p class="body body--medium">Education</p></div>
+    <div class="field-wrapper" data-combo='{"id":"school--0","label":"School","required":true,"async":"schools"}'></div>
+    <div class="field-wrapper" data-combo='{"id":"degree--0","label":"Degree","required":true,"options":["Associate&apos;s Degree","Bachelor&apos;s Degree","Bachelors","Master&apos;s Degree","Masters","Doctor of Philosophy (Ph.D.)","High School","Other"]}'></div>
+    <div class="field-wrapper" data-combo='{"id":"discipline--0","label":"Discipline","required":true,"options":["Computer Engineering","Computer Science","Data Science","Electrical Engineering","Mathematics","Mechanical Engineering","Other"]}'></div>
+    <div class="field-wrapper" data-combo='{"id":"end-month--0","label":"End date month","required":true,"options":["January","February","March","April","May","June","July","August","September","October","November","December"]}'></div>
+    <div class="field-wrapper"><div class="text-input-wrapper"><div class="input-wrapper">
+      <label id="end-year--0-label" for="end-year--0" class="label">End date year<span aria-hidden="true">*</span></label>
+      <input id="end-year--0" name="end-year--0" class="input input__single-line" aria-label="End date year" aria-describedby="end-year--0-error" aria-invalid="false" aria-required="true" type="number" value="">
+      <div id="end-year--0-error" class="helper-text helper-text--error"></div>
+    </div></div></div>
+    <button type="button" class="add-another-button">Add another</button>
+  </div></div>
+
+  <div class="field-wrapper field-wrapper--multiline"><div class="text-input-wrapper"><div class="input-wrapper input-wrapper__multi-line">
+    <label id="question_1001-label" for="question_1001" class="label">Why do you want to work at Acme Robotics?<span aria-hidden="true">*</span></label>
+    <textarea id="question_1001" name="question_1001" class="input input__multi-line" aria-label="Why do you want to work at Acme Robotics?" aria-describedby="question_1001-description question_1001-error" aria-invalid="false" aria-required="true" rows="4"></textarea>
+    <div id="question_1001-error" class="helper-text helper-text--error"></div>
+  </div></div></div>
+  <div class="field-wrapper"><div class="text-input-wrapper"><div class="input-wrapper">
+    <label id="question_1002-label" for="question_1002" class="label">LinkedIn Profile</label>
+    <input id="question_1002" name="question_1002" class="input input__single-line" aria-label="LinkedIn Profile" aria-invalid="false" aria-required="false" type="text" maxlength="255" value="">
+  </div></div></div>
+  <div class="field-wrapper"><div class="text-input-wrapper"><div class="input-wrapper">
+    <label id="question_1003-label" for="question_1003" class="label">Website</label>
+    <input id="question_1003" name="question_1003" class="input input__single-line" aria-label="Website" aria-invalid="false" aria-required="false" type="text" maxlength="255" value="">
+  </div></div></div>
+  <div class="field-wrapper" data-combo='{"id":"question_1004","label":"Are you legally authorized to work in the United States?","required":true,"options":["Yes","No"]}'></div>
+  <div class="field-wrapper" data-combo='{"id":"question_1005","label":"Will you now or in the future require visa sponsorship to work in the United States?","required":true,"options":["Yes","No"]}'></div>
+  <div class="field-wrapper"><fieldset class="checkbox" id="question_1006[]" aria-required="true">
+    <legend class="label checkbox__description">Please review and acknowledge the Acme Candidate Privacy Notice. <span class="required">*</span></legend>
+    <div class="checkbox__wrapper"><div class="checkbox__input">
+      <input required type="checkbox" id="question_1006[]_9001" name="question_1006[]" aria-describedby="question_1006[]-error" aria-invalid="false" value="9001">
+      <label for="question_1006[]_9001">Acknowledge/Confirm</label>
+    </div></div>
+    <div id="question_1006[]-error" class="helper-text helper-text--error"></div>
+  </fieldset></div>
+  <div class="field-wrapper" data-combo='{"id":"question_1007","label":"How did you hear about this job?","required":true,"options":["LinkedIn","Career fair","Friend or colleague","Other"]}'></div>
+</div>
+<hr>
+<div id="demographic-section" class="eeoc__container">
+  <h3 class="section-header">Voluntary Self-Identification</h3>
+  <p>For government reporting purposes we ask candidates to respond to the survey below. Answers are voluntary.</p>
+  <div class="eeoc__question__wrapper" data-combo='{"id":"gender","label":"Gender","required":false,"options":["Male","Female","Non-binary","I don&apos;t wish to answer"]}'></div>
+  <div class="eeoc__question__wrapper" data-combo='{"id":"hispanic_ethnicity","label":"Are you Hispanic/Latino?","required":false,"options":["Yes","No","I don&apos;t wish to answer"]}'></div>
+  <div class="eeoc__question__wrapper" data-combo='{"id":"veteran_status","label":"Veteran Status","required":false,"options":["I am not a protected veteran","I identify as one or more of the classifications of a protected veteran","I don&apos;t wish to answer"]}'></div>
+  <div class="eeoc__question__wrapper" data-combo='{"id":"disability_status","label":"Disability Status","required":false,"options":["Yes, I have a disability (or previously had a disability)","No, I do not have a disability and have not had one in the past","I do not want to answer"]}'></div>
+</div>
+<hr>
+<div class="application--submit"><button type="submit" class="btn btn--rounded" aria-disabled="false">Submit application</button></div>
+</form>
+
+<div class="grecaptcha-badge" style="width:256px;height:60px"><div class="grecaptcha-logo"><iframe title="reCAPTCHA" width="256" height="60" src="/recaptcha/enterprise/anchor?ar=1&amp;k=fake-site-key&amp;size=invisible"></iframe></div></div>
+
+<script>
+(function () {
+  var ASYNC = {
+    locations: ["Boston, Massachusetts, United States", "Boston, Lincolnshire, England, United Kingdom", "Boston Heights, Ohio, United States", "New York, New York, United States"],
+    schools: ["Boston College", "Boston University", "Northeastern Illinois University", "Northeastern University", "Northwestern University", "Tufts University"]
+  };
+
+  function el(tag, attrs, text) {
+    var e = document.createElement(tag);
+    for (var k in attrs || {}) e.setAttribute(k, attrs[k]);
+    if (text != null) e.textContent = text;
+    return e;
+  }
+
+  function buildCombo(host) {
+    var cfg = JSON.parse(host.getAttribute("data-combo"));
+    var id = cfg.id;
+    var select = el("div", { "class": "select" });
+    var container = el("div", { "class": "select__container" });
+    var label = el("label", { id: id + "-label", "for": id, "class": "label select__label" }, cfg.label);
+    if (cfg.required) label.appendChild(el("span", { "aria-hidden": "true" }, "*"));
+    var shell = el("div", { "class": "select-shell" });
+    var control = el("div", { "class": "select__control" });
+    var values = el("div", { "class": "select__value-container" });
+    var placeholder = el("div", { "class": "select__placeholder", id: "react-select-" + id + "-placeholder" }, "Select...");
+    var inputBox = el("div", { "class": "select__input-container" });
+    var input = el("input", {
+      "class": "select__input", id: id, type: "text", role: "combobox", autocomplete: "off",
+      "aria-autocomplete": "list", "aria-expanded": "false", "aria-haspopup": "true",
+      "aria-labelledby": id + "-label", "aria-required": cfg.required ? "true" : "false", "aria-invalid": "false",
+      "aria-describedby": "react-select-" + id + "-placeholder " + id + "-error"
+    });
+    inputBox.appendChild(input);
+    values.appendChild(placeholder);
+    values.appendChild(inputBox);
+    var indicators = el("div", { "class": "select__indicators" });
+    var toggle = el("button", { type: "button", "class": "icon-button icon-button--sm", "aria-label": "Toggle flyout", tabindex: "-1" }, "▾");
+    indicators.appendChild(toggle);
+    control.appendChild(values);
+    control.appendChild(indicators);
+    var hidden = el("input", { "class": "select__required", tabindex: "-1", "aria-hidden": "true", name: id, value: "" });
+    if (cfg.required) hidden.setAttribute("required", "");
+    shell.appendChild(control);
+    shell.appendChild(hidden);
+    var error = el("div", { id: id + "-error", "class": "helper-text helper-text--error" });
+    container.appendChild(label);
+    container.appendChild(shell);
+    container.appendChild(error);
+    select.appendChild(container);
+    host.appendChild(select);
+
+    var menu = null;
+    function close() {
+      if (menu) menu.remove();
+      menu = null;
+      input.setAttribute("aria-expanded", "false");
+      input.removeAttribute("aria-controls");
+    }
+    function choose(text) {
+      hidden.value = text;
+      var sv = values.querySelector(".select__single-value");
+      if (!sv) { sv = el("div", { "class": "select__single-value" }); values.insertBefore(sv, inputBox); }
+      sv.textContent = text;
+      placeholder.style.display = "none";
+      input.value = "";
+      input.setAttribute("aria-invalid", "false");
+      error.textContent = "";
+      close();
+    }
+    function render(list, notice) {
+      if (!menu) {
+        menu = el("div", { "class": "select__menu" });
+        shell.appendChild(menu);
+      }
+      menu.innerHTML = "";
+      var listbox = el("div", { "class": "select__menu-list", role: "listbox", "aria-multiselectable": "false", id: "react-select-" + id + "-listbox" });
+      if (!list.length) listbox.appendChild(el("div", { "class": "select__menu-notice" }, notice || "No options"));
+      list.forEach(function (text, i) {
+        var o = el("div", { "class": "select__option" + (i === 0 ? " select__option--is-focused" : ""), role: "option", tabindex: "-1", "aria-disabled": "false", id: "react-select-" + id + "-option-" + i }, text);
+        o.addEventListener("click", function () { choose(text); });
+        listbox.appendChild(o);
+      });
+      menu.appendChild(listbox);
+      input.setAttribute("aria-expanded", "true");
+      input.setAttribute("aria-controls", listbox.id);
+    }
+    function filtered() {
+      var q = input.value.trim().toLowerCase();
+      if (cfg.async) {
+        var first = q.split(",")[0].trim();
+        if (first.length < 2) return null;
+        return ASYNC[cfg.async].filter(function (t) { return t.toLowerCase().indexOf(first) !== -1; });
+      }
+      return cfg.options.filter(function (t) { return !q || t.toLowerCase().indexOf(q) !== -1; });
+    }
+    function open() {
+      var list = filtered();
+      if (list === null) return render([], "Start typing...");
+      render(list);
+    }
+    control.addEventListener("mousedown", function (e) {
+      if (e.target !== input) e.preventDefault();
+      input.focus();
+      open();
+    });
+    var timer = null;
+    input.addEventListener("input", function () {
+      if (cfg.async) {
+        clearTimeout(timer);
+        timer = setTimeout(open, 250);
+      } else open();
+    });
+    input.addEventListener("keydown", function (e) { if (e.key === "Escape") close(); });
+    document.addEventListener("mousedown", function (e) { if (!shell.contains(e.target)) close(); });
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll("[data-combo]"), buildCombo);
+
+  Array.prototype.forEach.call(document.querySelectorAll("[data-attach]"), function (b) {
+    var input = document.getElementById(b.getAttribute("data-attach"));
+    b.addEventListener("click", function () { input.click(); });
+    input.addEventListener("change", function () {
+      var out = document.getElementById(input.id + "-filename");
+      out.textContent = input.files.length ? input.files[0].name + " (Remove)" : "";
+    });
+  });
+
+  var form = document.getElementById("application-form");
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var bad = 0;
+    function fail(id, control) {
+      bad++;
+      if (control) control.setAttribute("aria-invalid", "true");
+      var err = document.getElementById(id + "-error");
+      if (err) err.textContent = "This field is required.";
+    }
+    Array.prototype.forEach.call(form.querySelectorAll("input[aria-required=true], textarea[aria-required=true]"), function (c) {
+      if (c.getAttribute("role") === "combobox") {
+        var h = c.closest(".select-shell").querySelector(".select__required");
+        if (!h.value) fail(c.id, c);
+      } else if (!c.value.trim()) fail(c.id, c);
+    });
+    if (!document.getElementById("resume").files.length) fail("resume", null);
+    Array.prototype.forEach.call(form.querySelectorAll("fieldset[aria-required=true]"), function (fs) {
+      if (!fs.querySelector("input:checked")) fail(fs.id, null);
+    });
+    if (!bad) form.submit();
+  });
+})();
+</script>
+</body>
+</html>

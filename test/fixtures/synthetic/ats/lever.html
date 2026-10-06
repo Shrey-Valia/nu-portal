@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- Synthetic reconstruction of a jobs.lever.co/<company>/<id>/apply page (fake company).
+     Mirrors Lever's markup: li.application-question > label > .application-label + .application-field,
+     the resume input inside the "ATTACH RESUME/CV" button (with a fake parse step that pre-fills the
+     name), a location input with a suggestion dropdown, urls[...] link fields, "cards" with a hidden
+     baseTemplate JSON, EEO selects, an invisible hCaptcha placeholder, a cookie banner and a
+     type=button submit that validates and then posts the form to the same URL. -->
+<title>Acme Robotics - Robotics Software Co-op</title>
+<style>
+  body { font-family: sans-serif; max-width: 760px; margin: 0 auto 80px; }
+  ul { list-style: none; padding: 0; }
+  .application-question { margin: 14px 0; }
+  .invisible-resume-upload { position: absolute; opacity: 0; width: 1px; height: 1px; }
+  .visible-resume-upload { display: inline-block; border: 1px solid #333; padding: 6px 12px; position: relative; }
+  .resume-upload-working, .resume-upload-success, .resume-upload-failure { display: none; }
+  .application-question.resume.working .resume-upload-working { display: inline; }
+  .application-question.resume.success .resume-upload-success { display: inline; }
+  .dropdown-container { display: none; border: 1px solid #555; background: #222; color: #ddd; }
+  .dropdown-container.open { display: block; }
+  .dropdown-location { padding: 4px 8px; cursor: pointer; }
+  .error-message { color: #b00020; }
+  .hidden { display: none; }
+  .cc-window { position: fixed; bottom: 0; left: 0; right: 0; background: #333; color: #fff; padding: 10px; }
+</style>
+</head>
+<body>
+<div class="cc-window" role="dialog" aria-label="cookieconsent">
+  <span>This website uses cookies.</span>
+  <button class="cc-btn cc-deny" type="button">Deny</button>
+  <button class="cc-btn cc-allow" type="button">Accept</button>
+</div>
+<div class="main-header page-full-width section-wrapper"><a class="main-header-logo" href="#"><img alt="Acme Robotics logo" src="data:,"></a></div>
+<div class="posting-header"><div class="posting-headline"><h2>Robotics Software Co-op</h2><div class="posting-categories">Boston, MA / Engineering / Co-op</div></div></div>
+
+<div class="content">
+<form id="application-form" enctype="multipart/form-data" method="POST">
+  <div class="section page-centered application-form">
+    <h4>Submit your application</h4>
+    <div id="form-error" class="error-message application-error hidden" role="alert"></div>
+    <ul>
+      <li class="application-question resume"><label>
+        <div class="application-label">Resume/CV <span class="required">✱</span></div>
+        <div class="application-field">
+          <a href="#" class="postings-btn template-btn-utility visible-resume-upload"><span class="filename"></span><span class="default-label">ATTACH RESUME/CV</span>
+            <input class="application-file-input invisible-resume-upload" data-qa="input-resume" id="resume-upload-input" name="resume" tabindex="-1" type="file"></a>
+          <span class="resume-upload-failure"><span class="resume-upload-label">Couldn't auto-read resume.</span></span>
+          <span class="resume-upload-working"><span class="resume-upload-label">Analyzing resume...</span></span>
+          <span class="resume-upload-success"><span class="resume-upload-label">Success!</span></span>
+        </div></label></li>
+      <li class="application-question"><label>
+        <div class="application-label">Full name<span class="required">✱</span></div>
+        <div class="application-field"><input type="text" data-qa="name-input" name="name" required=""></div></label></li>
+      <li class="application-question"><label>
+        <div class="application-label">Email<span class="required">✱</span></div>
+        <div class="application-field"><input name="email" data-qa="email-input" type="email" required=""></div></label></li>
+      <li class="application-question"><label>
+        <div class="application-label">Phone </div>
+        <div class="application-field"><input type="text" data-qa="phone-input" name="phone"></div></label></li>
+      <li class="application-question" data-qa="structured-contact-location-question"><label>
+        <div class="application-label">Current location <span class="required">✱</span></div>
+        <div class="application-field">
+          <input class="location-input" data-qa="location-input" id="location-input" type="text" maxlength="100" name="location" required="" autocomplete="off">
+          <input id="selected-location" type="hidden" name="selectedLocation">
+          <div class="dropdown-container"><div class="dropdown-results"></div><div class="dropdown-no-results hidden">No location found. Try entering a different location</div></div>
+        </div></label></li>
+      <li class="application-question"><label>
+        <div class="application-label">Current company </div>
+        <div class="application-field"><input type="text" data-qa="org-input" name="org"></div></label></li>
+    </ul>
+  </div>
+  <div class="section page-centered application-form">
+    <h4>Links</h4>
+    <ul>
+      <li class="application-question"><label><div class="application-label">LinkedIn URL</div><div class="application-field"><input type="text" name="urls[LinkedIn]"></div></label></li>
+      <li class="application-question"><label><div class="application-label">GitHub URL</div><div class="application-field"><input type="text" name="urls[GitHub]"></div></label></li>
+      <li class="application-question"><label><div class="application-label">Portfolio URL</div><div class="application-field"><input type="text" name="urls[Portfolio]"></div></label></li>
+      <li class="application-question"><label><div class="application-label">Other website</div><div class="application-field"><input type="text" name="urls[Other]"></div></label></li>
+    </ul>
+  </div>
+
+  <div class="section page-centered application-form" data-qa="additional-cards">
+    <h4 data-qa="card-name">Work Authorization</h4>
+    <input type="hidden" name="cards[11111111-aaaa-4bbb-8ccc-000000000001][baseTemplate]" value='{"text":"Work Authorization","fields":[{"type":"multiple-choice","text":"Are you legally authorized to work in the country for which you are applying?","description":"","required":true,"options":[{"text":"Yes"},{"text":"No"}]},{"type":"multiple-choice","text":"Will you now or in the future require sponsorship for employment visa status (e.g., H-1B)?","description":"","required":true,"options":[{"text":"Yes"},{"text":"No"}]}]}'>
+    <ul>
+      <li class="application-question custom-question"><div>
+        <div class="application-label full-width multiple-choice"><div class="text">Are you legally authorized to work in the country for which you are applying?<span class="required">✱</span></div></div>
+        <div class="application-field full-width required-field"><ul data-qa="multiple-choice">
+          <li><label><input type="radio" name="cards[11111111-aaaa-4bbb-8ccc-000000000001][field0]" value="Yes" required="required"><span class="application-answer-alternative">Yes</span></label></li>
+          <li><label><input type="radio" name="cards[11111111-aaaa-4bbb-8ccc-000000000001][field0]" value="No" required="required"><span class="application-answer-alternative">No</span></label></li>
+        </ul></div></div></li>
+      <li class="application-question custom-question"><div>
+        <div class="application-label full-width multiple-choice"><div class="text">Will you now or in the future require sponsorship for employment visa status (e.g., H-1B)?<span class="required">✱</span></div></div>
+        <div class="application-field full-width required-field"><ul data-qa="multiple-choice">
+          <li><label><input type="radio" name="cards[11111111-aaaa-4bbb-8ccc-000000000001][field1]" value="Yes" required="required"><span class="application-answer-alternative">Yes</span></label></li>
+          <li><label><input type="radio" name="cards[11111111-aaaa-4bbb-8ccc-000000000001][field1]" value="No" required="required"><span class="application-answer-alternative">No</span></label></li>
+        </ul></div></div></li>
+    </ul>
+  </div>
+
+  <div class="section page-centered application-form" data-qa="additional-cards">
+    <h4 data-qa="card-name">University</h4>
+    <input type="hidden" name="cards[22222222-aaaa-4bbb-8ccc-000000000002][baseTemplate]" value='{"text":"University","fields":[{"type":"dropdown","text":"Which university are you currently attending or did you last attend?","description":"","required":true,"options":[{"text":"Boston University"},{"text":"Northeastern Illinois University"},{"text":"Northeastern University"},{"text":"Northwestern University"},{"text":"Other - School Not Listed"}]}]}'>
+    <ul>
+      <li class="application-question custom-question"><div>
+        <div class="application-label full-width dropdown"><div class="text">Which university are you currently attending or did you last attend?<span class="required">✱</span></div></div>
+        <div class="application-field full-width required-field"><div class="application-dropdown">
+          <select name="cards[22222222-aaaa-4bbb-8ccc-000000000002][field0]" required="">
+            <option value="">Click Here (If you encounter an issue, make sure your browser is updated)</option>
+            <option value="Boston University">Boston University</option>
+            <option value="Northeastern Illinois University">Northeastern Illinois University</option>
+            <option value="Northeastern University">Northeastern University</option>
+            <option value="Northwestern University">Northwestern University</option>
+            <option value="Other - School Not Listed">Other - School Not Listed</option>
+          </select></div></div></div></li>
+    </ul>
+  </div>
+
+  <div class="section page-centered application-form" data-qa="additional-cards">
+    <h4 data-qa="card-name">Supplementary Questions</h4>
+    <input type="hidden" name="cards[33333333-aaaa-4bbb-8ccc-000000000003][baseTemplate]" value='{"text":"Supplementary Questions","fields":[{"type":"multiple-select","text":"Which programming languages are you comfortable with? (Check all that apply)","description":"","required":true,"options":[{"text":"Python"},{"text":"TypeScript"},{"text":"Java"},{"text":"C++"}]},{"type":"textarea","text":"Tell us about a robot you would like to build.","description":"Keep it under 200 words.","required":true}]}'>
+    <ul>
+      <li class="application-question custom-question"><div>
+        <div class="application-label full-width multiple-select"><div class="text">Which programming languages are you comfortable with? (Check all that apply)<span class="required">✱</span></div></div>
+        <div class="application-field full-width required-field"><ul data-qa="checkboxes">
+          <li><label><input type="checkbox" name="cards[33333333-aaaa-4bbb-8ccc-000000000003][field0]" value="Python" required><span class="application-answer-alternative">Python</span></label></li>
+          <li><label><input type="checkbox" name="cards[33333333-aaaa-4bbb-8ccc-000000000003][field0]" value="TypeScript" required><span class="application-answer-alternative">TypeScript</span></label></li>
+          <li><label><input type="checkbox" name="cards[33333333-aaaa-4bbb-8ccc-000000000003][field0]" value="Java" required><span class="application-answer-alternative">Java</span></label></li>
+          <li><label><input type="checkbox" name="cards[33333333-aaaa-4bbb-8ccc-000000000003][field0]" value="C++" required><span class="application-answer-alternative">C++</span></label></li>
+        </ul></div></div></li>
+      <li class="application-question custom-question"><div>
+        <div class="application-label full-width textarea"><div class="text">Tell us about a robot you would like to build.<span class="required">✱</span></div></div>
+        <div class="application-field full-width required-field"><textarea class="card-field-input" name="cards[33333333-aaaa-4bbb-8ccc-000000000003][field1]" placeholder="Type your response" required></textarea></div></div></li>
+    </ul>
+  </div>
+
+  <div class="section eeo-section page-centered application-form" data-qa="eeo-section">
+    <h4>U.S. Equal Employment Opportunity information <span class="eeo-light-text">(Completion is voluntary and will not subject you to adverse treatment)</span></h4>
+    <div class="application-question"><label><div class="application-label">Gender</div><div class="application-field"><div class="application-dropdown"><select name="eeo[gender]">
+      <option value="">Select ...</option><option value="Male">Male</option><option value="Female">Female</option><option value="Decline to self-identify">Decline to self-identify</option></select></div></div></label></div>
+    <div class="application-question"><label><div class="application-label multiple-choice">Race</div><div class="application-field"><div class="application-dropdown"><select name="eeo[race]">
+      <option value="">Select ...</option><option value="Hispanic or Latino">Hispanic or Latino</option><option value="White (Not Hispanic or Latino)">White (Not Hispanic or Latino)</option><option value="Asian (Not Hispanic or Latino)">Asian (Not Hispanic or Latino)</option><option value="Two or More Races (Not Hispanic or Latino)">Two or More Races (Not Hispanic or Latino)</option><option value="Decline to self-identify">Decline to self-identify</option></select></div></div></label></div>
+    <div class="application-question"><label><div class="application-label">Veteran status</div><div class="application-field"><div class="application-dropdown"><select name="eeo[veteran]">
+      <option value="">Select ...</option><option value="I am a veteran">I am a veteran</option><option value="I am not a veteran">I am not a veteran</option><option value="Decline to self-identify">Decline to self-identify</option></select></div></div></label></div>
+  </div>
+
+  <div class="section page-centered application-form">
+    <label for="additional-information"><h4>Additional information</h4></label>
+    <div class="application-additional"><textarea placeholder="Add a cover letter or anything else you want to share." name="comments" id="additional-information"></textarea></div>
+  </div>
+  <input type="hidden" name="timezone" id="applicant-timezone" value="">
+  <input id="hcaptchaResponseInput" type="hidden" name="h-captcha-response" value="">
+  <button id="hcaptchaSubmitBtn" type="submit" class="hidden"></button>
+  <div id="h-captcha" class="h-captcha" data-size="invisible" data-sitekey="fake-site-key"></div>
+  <div class="section page-centered application-form last-section-apply">
+    <button id="btn-submit" type="button" class="postings-btn template-btn-submit" data-qa="btn-submit">Submit application</button>
+  </div>
+</form>
+</div>
+<script>
+(function () {
+  var form = document.getElementById("application-form");
+  document.querySelector(".cc-deny").addEventListener("click", function () { document.querySelector(".cc-window").remove(); });
+  document.querySelector(".cc-allow").addEventListener("click", function () { document.querySelector(".cc-window").remove(); });
+
+  // Resume: show "Analyzing resume...", then pre-fill the name the way Lever's parser does.
+  var resume = document.getElementById("resume-upload-input");
+  var li = resume.closest(".application-question");
+  resume.addEventListener("change", function () {
+    li.classList.remove("success");
+    li.classList.add("working");
+    li.querySelector(".filename").textContent = resume.files.length ? resume.files[0].name : "";
+    setTimeout(function () {
+      li.classList.remove("working");
+      li.classList.add("success");
+      form.querySelector("[name=name]").value = "J. Husky (parsed)";
+    }, 700);
+  });
+
+  // Location suggestions.
+  var PLACES = ["Boston, MA, United States", "Boston, Lincolnshire, United Kingdom", "Bostonia, CA, United States", "New York, NY, United States"];
+  var loc = document.getElementById("location-input");
+  var box = loc.parentElement.querySelector(".dropdown-container");
+  var results = box.querySelector(".dropdown-results");
+  var timer = null;
+  loc.addEventListener("input", function () {
+    document.getElementById("selected-location").value = "";
+    clearTimeout(timer);
+    timer = setTimeout(function () {
+      var q = loc.value.split(",")[0].trim().toLowerCase();
+      results.innerHTML = "";
+      if (q.length < 2) { box.classList.remove("open"); return; }
+      PLACES.filter(function (p) { return p.toLowerCase().indexOf(q) !== -1; }).forEach(function (p) {
+        var d = document.createElement("div");
+        d.className = "dropdown-location";
+        d.textContent = p;
+        d.addEventListener("click", function (e) {
+          e.preventDefault();
+          loc.value = p;
+          document.getElementById("selected-location").value = JSON.stringify({ name: p });
+          box.classList.remove("open");
+        });
+        results.appendChild(d);
+      });
+      box.classList.add("open");
+    }, 250);
+  });
+
+  document.getElementById("btn-submit").addEventListener("click", function () {
+    Array.prototype.forEach.call(form.querySelectorAll(".field-error"), function (n) { n.remove(); });
+    var missing = [];
+    function q(c) { return c.closest(".application-question").querySelector(".application-label").textContent.replace("✱", "").trim(); }
+    Array.prototype.forEach.call(form.querySelectorAll("input[required], select[required], textarea[required]"), function (c) {
+      if (c.type === "radio" || c.type === "checkbox") {
+        if (!form.querySelector('[name="' + c.name + '"]:checked') && missing.indexOf(q(c)) === -1) missing.push(q(c));
+      } else if (!c.value.trim()) missing.push(q(c));
+    });
+    if (!resume.files.length) missing.push("Resume/CV");
+    var err = document.getElementById("form-error");
+    if (missing.length) {
+      err.textContent = "Please fill out the required fields: " + missing.join("; ");
+      err.classList.remove("hidden");
+      return;
+    }
+    err.classList.add("hidden");
+    form.submit();
+  });
+})();
+</script>
+</body>
+</html>

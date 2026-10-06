@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- Synthetic Greenhouse-style form (fake company) with a VISIBLE checkbox captcha (a local iframe at
+     /recaptcha/api2/anchor?size=normal) and a required question rendered with an unrecognized widget
+     (a signature canvas). open() must flag both; submit() must refuse. -->
+<title>Job Application for Hardware Intern at Captcha Co</title>
+<style>
+  body { font-family: sans-serif; max-width: 720px; margin: 0 auto; }
+  .field-wrapper { margin: 12px 0; }
+</style>
+</head>
+<body>
+<h1 class="section-header">Hardware Intern</h1>
+<form id="application-form" class="application--form" method="post" action="/submit/greenhouse" novalidate>
+  <div class="field-wrapper"><div class="input-wrapper">
+    <label id="first_name-label" for="first_name" class="label">First Name<span aria-hidden="true">*</span></label>
+    <input id="first_name" name="first_name" class="input" aria-required="true" type="text">
+  </div></div>
+  <div class="field-wrapper"><div class="input-wrapper">
+    <label id="email-label" for="email" class="label">Email<span aria-hidden="true">*</span></label>
+    <input id="email" name="email" class="input" aria-required="true" type="text">
+  </div></div>
+  <div class="field-wrapper signature">
+    <div class="label">Draw your signature<span aria-hidden="true">*</span></div>
+    <canvas width="300" height="80" style="border:1px solid #999"></canvas>
+  </div>
+  <div class="g-recaptcha" data-sitekey="fake-site-key">
+    <iframe title="reCAPTCHA" width="304" height="78" src="/recaptcha/api2/anchor?ar=1&amp;k=fake-site-key&amp;size=normal"></iframe>
+  </div>
+  <div class="application--submit"><button type="submit" class="btn">Submit application</button></div>
+</form>
+</body>
+</html>

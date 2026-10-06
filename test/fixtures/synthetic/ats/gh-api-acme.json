@@ -1,0 +1,40 @@
+{
+  "id": 4000123,
+  "title": "Robotics Software Co-op",
+  "company_name": "Acme Robotics",
+  "absolute_url": "https://job-boards.greenhouse.io/acme/jobs/4000123",
+  "questions": [
+    { "label": "First Name", "required": true, "description": null, "fields": [{ "name": "first_name", "type": "input_text", "values": [] }] },
+    { "label": "Last Name", "required": true, "description": null, "fields": [{ "name": "last_name", "type": "input_text", "values": [] }] },
+    { "label": "Preferred First Name", "required": false, "description": null, "fields": [{ "name": "preferred_name", "type": "input_text", "values": [] }] },
+    { "label": "Email", "required": true, "description": null, "fields": [{ "name": "email", "type": "input_text", "values": [] }] },
+    { "label": "Phone", "required": true, "description": null, "fields": [{ "name": "phone", "type": "input_text", "values": [] }] },
+    { "label": "Resume/CV", "required": true, "description": null, "fields": [{ "name": "resume", "type": "input_file", "values": [] }, { "name": "resume_text", "type": "textarea", "values": [] }] },
+    { "label": "Cover Letter", "required": false, "description": null, "fields": [{ "name": "cover_letter", "type": "input_file", "values": [] }, { "name": "cover_letter_text", "type": "textarea", "values": [] }] },
+    { "label": "Why do you want to work at Acme Robotics?", "required": true, "description": "<p>A few sentences is plenty.</p>", "fields": [{ "name": "question_1001", "type": "textarea", "values": [] }] },
+    { "label": "LinkedIn Profile", "required": false, "description": null, "fields": [{ "name": "question_1002", "type": "input_text", "values": [] }] },
+    { "label": "Website", "required": false, "description": null, "fields": [{ "name": "question_1003", "type": "input_text", "values": [] }] },
+    { "label": "Are you legally authorized to work in the United States?", "required": true, "description": null, "fields": [{ "name": "question_1004", "type": "multi_value_single_select", "values": [{ "label": "Yes", "value": 1 }, { "label": "No", "value": 0 }] }] },
+    { "label": "Will you now or in the future require visa sponsorship to work in the United States?", "required": true, "description": null, "fields": [{ "name": "question_1005", "type": "multi_value_single_select", "values": [{ "label": "Yes", "value": 1 }, { "label": "No", "value": 0 }] }] },
+    { "label": "Please review and acknowledge the Acme Candidate Privacy Notice.", "required": true, "description": null, "fields": [{ "name": "question_1006[]", "type": "multi_value_multi_select", "values": [{ "label": "Acknowledge/Confirm", "value": 9001 }] }] },
+    { "label": "How did you hear about this job?", "required": true, "description": null, "fields": [{ "name": "question_1007", "type": "multi_value_single_select", "values": [{ "label": "LinkedIn", "value": 1 }, { "label": "Career fair", "value": 2 }, { "label": "Friend or colleague", "value": 3 }, { "label": "Other", "value": 4 }] }] }
+  ],
+  "location_questions": [
+    { "label": "Longitude", "required": true, "description": null, "fields": [{ "name": "longitude", "type": "input_hidden", "values": [] }] },
+    { "label": "Latitude", "required": true, "description": null, "fields": [{ "name": "latitude", "type": "input_hidden", "values": [] }] },
+    { "label": "Location", "required": true, "description": null, "fields": [{ "name": "location", "type": "input_text", "values": [] }] }
+  ],
+  "compliance": [
+    {
+      "type": "eeoc",
+      "description": "<p>Voluntary self-identification.</p>",
+      "questions": [
+        { "label": "Gender", "required": false, "description": null, "fields": [{ "name": "gender", "type": "multi_value_single_select", "values": [{ "label": "Male", "value": "1" }, { "label": "Female", "value": "2" }, { "label": "Non-binary", "value": "3" }, { "label": "I don't wish to answer", "value": "4" }] }] },
+        { "label": "Are you Hispanic/Latino?", "required": false, "description": null, "fields": [{ "name": "hispanic_ethnicity", "type": "multi_value_single_select", "values": [{ "label": "Yes", "value": "1" }, { "label": "No", "value": "2" }, { "label": "I don't wish to answer", "value": "3" }] }] },
+        { "label": "VeteranStatus", "required": false, "description": null, "fields": [{ "name": "veteran_status", "type": "multi_value_single_select", "values": [{ "label": "I am not a protected veteran", "value": "1" }, { "label": "I identify as one or more of the classifications of a protected veteran", "value": "2" }, { "label": "I don't wish to answer", "value": "3" }] }] },
+        { "label": "DisabilityStatus", "required": false, "description": null, "fields": [{ "name": "disability_status", "type": "multi_value_single_select", "values": [{ "label": "Yes, I have a disability (or previously had a disability)", "value": "1" }, { "label": "No, I do not have a disability and have not had one in the past", "value": "2" }, { "label": "I do not want to answer", "value": "3" }] }] }
+      ]
+    }
+  ],
+  "demographic_questions": null
+}

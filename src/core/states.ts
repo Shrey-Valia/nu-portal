@@ -6,6 +6,7 @@ export const JOB_STATES = [
   "filtered_out", // failed an eligibility or preference rule
   "pending_score", // passed filters, waiting for the AI
   "below_bar", // scored under the threshold
+  "ready", // scored above the threshold, waiting for room in the daily queue
   "queued", // waiting for your approve/skip
   "manual_todo", // a match, but it has to be applied to by hand (Workday, unknown form, ...)
   "approved", // you (or auto mode) said yes; waiting for an apply run
@@ -24,13 +25,14 @@ export const JOB_STATES = [
 export type JobState = (typeof JOB_STATES)[number];
 
 const TRANSITIONS: Record<JobState, readonly JobState[]> = {
-  discovered: ["filtered_out", "pending_score"],
+  discovered: ["filtered_out", "pending_score", "expired"],
   filtered_out: ["discovered"],
-  pending_score: ["below_bar", "queued", "manual_todo", "approved", "filtered_out", "expired"],
+  pending_score: ["below_bar", "ready", "queued", "manual_todo", "approved", "filtered_out", "expired"],
   below_bar: ["pending_score", "queued", "expired"],
+  ready: ["queued", "approved", "manual_todo", "pending_score", "filtered_out", "expired", "halted"],
   queued: ["approved", "skipped", "deferred", "expired", "halted", "pending_score", "manual_todo", "applied_manual"],
   manual_todo: ["applied_manual", "skipped", "expired", "halted"],
-  approved: ["submitting", "queued", "halted", "expired", "pending_score"],
+  approved: ["submitting", "needs_manual", "queued", "halted", "expired", "pending_score"],
   skipped: ["queued"],
   deferred: ["queued", "expired", "halted"],
   expired: [],
@@ -58,4 +60,4 @@ export function isJobState(value: string): value is JobState {
 }
 
 // States the kill switch moves to "halted".
-export const HALTABLE: readonly JobState[] = ["queued", "approved", "deferred", "manual_todo"];
+export const HALTABLE: readonly JobState[] = ["ready", "queued", "approved", "deferred", "manual_todo"];

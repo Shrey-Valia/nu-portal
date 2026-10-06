@@ -16,6 +16,27 @@
         "chrome-devtools-mcp@latest"
       ],
       "env": {}
+    },
+    "recon-playwright": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "@playwright/mcp@latest",
+        "--cdp-endpoint",
+        "http://127.0.0.1:9222"
+      ],
+      "env": {}
+    },
+    "recon-devtools": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "chrome-devtools-mcp@latest",
+        "--browserUrl",
+        "http://127.0.0.1:9222"
+      ],
+      "env": {}
     }
   }
 }
