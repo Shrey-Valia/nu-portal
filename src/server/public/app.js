@@ -462,7 +462,7 @@
   async function startTask(kind, input = {}) {
     try {
       const res = await post("/api/tasks", { kind, input });
-      if (kind === "login") toast("A Chrome window is opening. Sign in, wait for your NUworks dashboard, then close it.");
+      if (kind === "login") toast("A Chrome window is opening. Sign in with Duo; it closes by itself once your NUworks dashboard loads.");
       else toast(`${res.task.label} started`);
       const list = document.querySelector(".task-list");
       if (list) {

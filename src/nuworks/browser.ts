@@ -1,6 +1,7 @@
-import { mkdirSync } from "node:fs";
+import { chmodSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import path from "node:path";
 import { type BrowserContext, chromium, type Page } from "playwright";
-import { BROWSER_PROFILE_DIR, NUWORKS_HOSTS } from "../config/paths.js";
+import { AUTH_DIR, BROWSER_PROFILE_DIR, NUWORKS_HOSTS } from "../config/paths.js";
 import { acquireLock } from "../core/lock.js";
 
 export interface OpenBrowserOptions {
@@ -31,6 +32,7 @@ export async function openBrowser(opts: OpenBrowserOptions = {}): Promise<Browse
       headless,
       viewport: headless ? { width: 1366, height: 900 } : null,
     });
+    await restoreSessionState(context);
     const blocked: string[] = [];
     if (opts.readOnly) await installReadOnlyGuard(context, blocked, opts.allowPost ?? []);
     const page = context.pages()[0] ?? (await context.newPage());
@@ -64,4 +66,28 @@ async function installReadOnlyGuard(context: BrowserContext, blocked: string[], 
       return route.abort("blockedbyclient");
     },
   );
+}
+
+// Chrome throws away cookies that have no expiry date when it closes, and
+// NUworks' login cookies are like that. Sign-in saves them here the moment your
+// dashboard appears; every later run puts them back. Same sensitivity as the
+// Chrome profile itself: gitignored, owner-only.
+const STATE_FILE = path.join(AUTH_DIR, "nuworks-session.json");
+
+export async function saveSessionState(context: BrowserContext): Promise<void> {
+  mkdirSync(AUTH_DIR, { recursive: true });
+  const state = await context.storageState();
+  writeFileSync(STATE_FILE, JSON.stringify({ savedAt: new Date().toISOString(), cookies: state.cookies }));
+  chmodSync(STATE_FILE, 0o600);
+}
+
+async function restoreSessionState(context: BrowserContext): Promise<void> {
+  if (!existsSync(STATE_FILE)) return;
+  try {
+    const { cookies } = JSON.parse(readFileSync(STATE_FILE, "utf8")) as { cookies: Parameters<BrowserContext["addCookies"]>[0] };
+    const nowSec = Date.now() / 1000;
+    await context.addCookies(cookies.filter((c) => !c.expires || c.expires < 0 || c.expires > nowSec));
+  } catch {
+    /* a bad state file just means signing in again */
+  }
 }

@@ -21,6 +21,15 @@ const hostOf = (u: string) => {
   }
 };
 
+// True when this page is NUworks and not a sign-in page. Used by the sign-in
+// window to notice your dashboard. Refined during recon (selectors.ts).
+export async function looksSignedIn(page: import("playwright").Page): Promise<boolean> {
+  const url = page.url();
+  if (!NUWORKS_HOSTS.includes(hostOf(url)) || SESSION.loginUrlPattern.test(url)) return false;
+  if ((await page.locator(SESSION.loginMarker).count()) > 0) return false;
+  return SESSION.loggedInMarker ? (await page.locator(SESSION.loggedInMarker).count()) > 0 : true;
+}
+
 // Opens NUworks with the saved profile and decides whether you're still signed in.
 // Never touches a login form: if a sign-in page appears, the answer is "needs_login".
 export async function checkSession(db: Db | null, existing?: BrowserHandle): Promise<SessionResult> {

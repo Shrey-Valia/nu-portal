@@ -166,7 +166,7 @@ export function setupPage(ctx: Ctx, claude: ClaudeStatus): string {
       7,
       "Sign in to NUworks",
       html`<span class="pill pill-${session.tone}">${session.text}</span>`,
-      html`<p>A Chrome window opens on NUworks. Sign in with your Northeastern account and Duo, wait for your dashboard, then close the window.</p>`,
+      html`<p>A Chrome window opens on NUworks. Sign in with your Northeastern account and Duo. When your NUworks dashboard appears, NU Portal saves your session and closes the window for you.</p>`,
       html`${taskBtn("login", "Sign in to NUworks", { cls: "primary" })} ${taskBtn("session-check", "Check sign-in")}`,
     )}
     ${step(
