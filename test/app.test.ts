@@ -227,3 +227,16 @@ test("letter PDFs are served only from the letters folder", async () => {
   assert.equal((await call("/letters/..%2F..%2Fme%2Fprivate.yaml")).status, 404);
   assert.equal((await call("/letters/nope.pdf")).status, 404);
 });
+
+test("approved NUworks jobs are listed with a link, and 'I applied' records them", async () => {
+  const t = new Date().toISOString();
+  db.prepare("INSERT INTO jobs (id, source, title, employer, apply_url, fingerprint, status, cover_letter, first_seen_at, last_seen_at, updated_at) VALUES ('nuworks:ap1', 'nuworks', 'Data Co-op', 'Acme', 'https://northeastern-csm.symplicity.com/students/app/jobs/detail/abc', 'fp-ap1', 'approved', 'not_accepted', ?, ?, ?)").run(t, t, t);
+  const page = (await call("/")).text;
+  assert.match(page, /Approved: apply on NUworks/);
+  assert.match(page, /Open in NUworks/);
+  assert.match(page, /Resume only/);
+  assert.equal((await post("/api/jobs/nuworks%3Aap1/applied", {})).status, 200);
+  assert.equal((db.prepare("SELECT status FROM jobs WHERE id = 'nuworks:ap1'").get() as { status: string }).status, "applied_manual");
+  assert.equal((db.prepare("SELECT via FROM applications WHERE job_id = 'nuworks:ap1'").get() as { via: string }).via, "manual");
+  assert.equal((await post("/api/jobs/nuworks%3Aap1/applied", {})).status, 409, "can't apply twice");
+});

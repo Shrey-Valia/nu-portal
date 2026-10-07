@@ -499,6 +499,19 @@
       }
       return void startTask(taskBtn.dataset.task, input);
     }
+    const applied = t.closest("[data-mark-applied]");
+    if (applied) {
+      applied.disabled = true;
+      try {
+        await post(`/api/jobs/${encodeURIComponent(applied.dataset.markApplied)}/applied`);
+        toast("Recorded as applied");
+        applied.closest("[data-approved-row]")?.remove();
+      } catch (err) {
+        applied.disabled = false;
+        toast(err.message, "error");
+      }
+      return;
+    }
     const show = t.closest("[data-show-task]");
     if (show) return void watchTask(show.dataset.showTask);
     const open = t.closest("[data-open]");

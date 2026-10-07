@@ -14,6 +14,8 @@ export const NUWORKS_BASE = "https://northeastern-csm.symplicity.com";
 
 export class NuworksSignedOutError extends Error {}
 
+export const nuworksJobUrl = (jobId: string) => `${NUWORKS_BASE}/students/app/jobs/detail/${jobId}`;
+
 export interface LiveAdapterDeps {
   context: BrowserContext;
   page: Page;

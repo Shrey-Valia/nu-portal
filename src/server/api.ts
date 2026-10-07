@@ -111,6 +111,21 @@ function editLetter(ctx: Ctx, jobId: string, body: Body): ApiResult {
   return ok({ ok: true, ...saved });
 }
 
+// You applied yourself (NUworks applying isn't automated yet): record it now
+// instead of waiting for the next daily sync.
+function markApplied(ctx: Ctx, jobId: string): ApiResult {
+  const job = jobRow(ctx, jobId);
+  if (!isJobState(job.status) || !canTransition(job.status, "applied_manual")) throw new HttpError(409, `Can't mark a job that is ${job.status.replaceAll("_", " ")} as applied`);
+  const source = (ctx.db.prepare("SELECT source FROM jobs WHERE id = ?").get(jobId) as { source: string }).source;
+  tx(ctx.db, () => {
+    move(ctx, jobId, "applied_manual", "you marked it applied");
+    ctx.db
+      .prepare("INSERT OR IGNORE INTO applications (job_id, track, via, result, started_at, submitted_at) VALUES (?, ?, 'manual', 'submitted', ?, ?)")
+      .run(jobId, source === "nuworks" ? "nuworks" : "external", now(), now());
+  });
+  return ok({ ok: true, jobId, status: "applied_manual" });
+}
+
 function haltNow(ctx: Ctx, body: Body): ApiResult {
   const employer = text(body, "employer", 200)!.trim();
   if (!employer) throw new HttpError(400, '"employer" is required');
@@ -191,6 +206,7 @@ export function handleApi(ctx: Ctx, method: string, pathname: string, body: Body
   if (method !== "POST") throw new HttpError(405, "Method not allowed");
   if ((m = pathname.match(/^\/api\/jobs\/([^/]+)\/decision$/))) return decide(ctx, param(m[1]), body);
   if ((m = pathname.match(/^\/api\/jobs\/([^/]+)\/letter$/))) return editLetter(ctx, param(m[1]), body);
+  if ((m = pathname.match(/^\/api\/jobs\/([^/]+)\/applied$/))) return markApplied(ctx, param(m[1]));
   if (pathname === "/api/halt") return haltNow(ctx, body);
   if (pathname === "/api/halt/clear") return clearHaltNow(ctx, body);
   if (pathname === "/api/apply") return startApply(ctx, body);

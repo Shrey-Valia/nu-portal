@@ -327,3 +327,6 @@ pre.draft { white-space: pre-wrap; background: var(--surface-2); border-radius: 
 .link-form .row { flex-wrap: nowrap; }
 .link-form input { flex: 1; }
 .link-form .issues { margin-top: 8px; }
+.main-col { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.approved .list li { align-items: center; }
+.doc-note { margin: 10px 0 0; }

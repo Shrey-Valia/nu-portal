@@ -17,6 +17,7 @@ import { renderPdf } from "../letters/render-pdf.js";
 import { letterHtml } from "../letters/template.js";
 import type { Me } from "../me/load.js";
 import type { NuworksAdapter } from "../nuworks/adapter.js";
+import { nuworksJobUrl } from "../nuworks/live-adapter.js";
 import { factsOf, filterContext, getJob, type JobRow, jobsInState, latestScore, upsertJob } from "../jobs/store.js";
 import { writeCoverLetter } from "../writing/compose.js";
 import { approveRate, calibrationExamples } from "./calibration.js";
@@ -87,7 +88,8 @@ export async function discover(db: Db, adapter: NuworksAdapter, runId: number, m
       db,
       {
         id, source: "nuworks", sourceJobId: p.id, title: p.title, employer: p.employer, location: p.location, modality: p.modality, term: p.term,
-        payText: p.payText, deadlineAt: p.deadlineAt, postedAt: p.postedAt, applyMethod: p.applyMethod, applyUrl: p.externalUrl, ats,
+        payText: p.payText, deadlineAt: p.deadlineAt, postedAt: p.postedAt, applyMethod: p.applyMethod,
+        applyUrl: p.applyMethod === "external" ? p.externalUrl : nuworksJobUrl(p.id), ats,
         coverLetter: p.coverLetter, requiredDocs: p.requiredDocs, qualifications: p.qualifications, description: sanitizePosting(p.description), raw: p.raw,
       },
       runId,

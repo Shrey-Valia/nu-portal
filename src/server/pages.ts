@@ -318,6 +318,35 @@ function summaryPanel(r: DailyReport): SafeHtml {
   </section>`;
 }
 
+// Approved jobs you still need to apply to yourself (NUworks, or sites NU Portal can't fill).
+function approvedList(ctx: Ctx): SafeHtml {
+  const rows = ctx.db
+    .prepare(
+      `SELECT j.id, j.title, j.employer, j.apply_url, j.deadline_at, j.source, j.cover_letter,
+         (SELECT pdf_path FROM writings w WHERE w.job_id = j.id AND w.kind = 'cover_letter' AND w.is_current = 1) AS letter_pdf
+       FROM jobs j WHERE j.status = 'approved' AND (j.source = 'nuworks' OR j.ats IS NULL OR j.ats NOT IN ('greenhouse', 'lever', 'ashby'))
+       ORDER BY j.deadline_at IS NULL, j.deadline_at`,
+    )
+    .all() as Row[];
+  if (!rows.length) return html``;
+  const tz = ctx.settings.timezone;
+  return html`<section class="panel approved" aria-labelledby="approved-h">
+    <h2 id="approved-h">Approved: apply on NUworks <span class="count">${rows.length}</span></h2>
+    <p class="muted small">Open each one, click Apply in NUworks, and attach the documents below. Click “I applied” when done (or the next daily run notices it).</p>
+    <ul class="list">${rows.map((r) => {
+      const letter = typeof r.letter_pdf === "string" ? letterHref(r.letter_pdf) : null;
+      return html`<li data-approved-row>
+        <div class="grow">
+          <a class="role" href="${jobHref(String(r.id))}">${s(r.title)}</a> <span class="muted">· ${s(r.employer)}</span>
+          <div class="small muted">${r.deadline_at ? html`Due ${formatDateTime(String(r.deadline_at), tz)} · ` : ""}${letter ? html`<a href="${letter}" target="_blank" rel="noopener">Cover letter PDF</a>` : r.cover_letter === "not_accepted" ? "Resume only" : r.cover_letter === "required" ? "Cover letter required (drafted on the next daily run)" : "Cover letter optional"}</div>
+        </div>
+        ${extLink(r.apply_url, "Open in NUworks ↗")}
+        <button type="button" class="btn" data-mark-applied="${String(r.id)}">I applied</button>
+      </li>`;
+    })}</ul>
+  </section>`;
+}
+
 export function todayPage(ctx: Ctx): string {
   const tz = ctx.settings.timezone;
   const day = dayIn(tz);
@@ -331,6 +360,8 @@ export function todayPage(ctx: Ctx): string {
   ${needsSetup ? html`<div class="banner banner-info" role="note"><strong>Welcome!</strong> NU Portal doesn't know you yet. <a href="/setup">Start setup</a> to upload your resume and build your profile.</div>` : ""}
   ${healthBar(r)}
   <div class="today">
+    <div class="main-col">
+    ${approvedList(ctx)}
     <section class="queue" aria-labelledby="queue-h">
       <div class="section-head">
         <h2 id="queue-h">Review queue <span class="count" data-queue-count>${r.queue.length}</span></h2>
@@ -340,6 +371,7 @@ export function todayPage(ctx: Ctx): string {
       ${r.queue.length ? r.queue.map((q) => queueCard(q, letters.get(q.jobId), tz, day, ctx.settings.nuworks.coverLetters === "whenAccepted")) : ""}
       <p class="empty"${r.queue.length ? raw(" hidden") : ""} data-queue-empty>Nothing to review. New matches arrive with the daily run.</p>
     </section>
+    </div>
     <aside class="side">
       ${applyPanel(ctx, Boolean(r.summary.halt))}
       <section class="panel" aria-labelledby="needs-h">
