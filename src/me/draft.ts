@@ -67,6 +67,12 @@ const SYSTEM = [
   NEUTRAL_RULE,
 ].join("\n\n");
 
+// The LinkedIn link you saved on the Setup page, if any.
+function typedLinkedin(): string | null {
+  const f = path.join(ME_DIR, "linkedin.url");
+  return existsSync(f) ? readFileSync(f, "utf8").trim() || null : null;
+}
+
 export function sourceFiles(): string[] {
   const files: string[] = [];
   for (const name of ["resume.pdf", "linkedin.pdf"]) {
@@ -103,7 +109,7 @@ function profileYaml(d: Extracted, cycleLabel: string): string {
   const doc = {
     identity: {
       ...clean({ name: d.identity.name, preferredName: d.identity.preferredName, email: d.identity.email, phone: d.identity.phone, city: d.identity.city }),
-      links: clean({ linkedin: withScheme(d.identity.links.linkedin), github: withScheme(d.identity.links.github), website: withScheme(d.identity.links.website) }),
+      links: clean({ linkedin: typedLinkedin() ?? withScheme(d.identity.links.linkedin), github: withScheme(d.identity.links.github), website: withScheme(d.identity.links.website) }),
     },
     education: {
       school: "Northeastern University",

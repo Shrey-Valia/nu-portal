@@ -9,6 +9,7 @@ import { getKv } from "../db/db.js";
 import { listDrafts, readDraft } from "../me/draft.js";
 import {
   advancedYaml,
+  currentLinkedin,
   getPath,
   PROFILE_FIELDS,
   privateExists,
@@ -78,6 +79,7 @@ const plistInstalled = () => existsSync(path.join(os.homedir(), "Library", "Laun
 export function setupPage(ctx: Ctx, claude: ClaudeStatus): string {
   const resume = existsSync(path.join(ME_DIR, "resume.pdf"));
   const linkedin = existsSync(path.join(ME_DIR, "linkedin.pdf"));
+  const linkedinUrl = currentLinkedin();
   const samplesDir = path.join(ME_DIR, "samples");
   const samples = existsSync(samplesDir) ? readdirSync(samplesDir).filter((f) => !f.startsWith(".")) : [];
   const drafts = listDrafts();
@@ -103,17 +105,23 @@ export function setupPage(ctx: Ctx, claude: ClaudeStatus): string {
     )}
     ${step(
       2,
-      "Add your documents",
-      resume ? pill("ok", linkedin ? "Resume + LinkedIn" : "Resume added") : pill("warn", "Resume needed"),
-      html`<p>Your resume (PDF) is required. LinkedIn: on your profile, More → Save to PDF. Past cover letters or essays help NU Portal match your voice.</p>
+      "Add your resume and LinkedIn",
+      resume ? pill("ok", linkedinUrl ? "Resume + LinkedIn" : "Resume added") : pill("warn", "Resume needed"),
+      html`<p>Your resume (PDF) is required. Your LinkedIn link goes on your profile and into the LinkedIn field on applications. Past cover letters or essays help NU Portal match your voice.</p>
         <ul class="files">
           <li>${resume ? "✓" : "○"} Resume ${resume ? html`<span class="muted">me/resume.pdf</span>` : ""}</li>
-          <li>${linkedin ? "✓" : "○"} LinkedIn PDF</li>
+          <li>${linkedinUrl ? "✓" : "○"} LinkedIn ${linkedinUrl ? html`<a href="${linkedinUrl}" target="_blank" rel="noopener noreferrer">${linkedinUrl.replace(/^https:\/\/(www\.)?/, "")}</a>` : ""}</li>
           <li>${samples.length ? "✓" : "○"} Writing samples ${samples.length ? html`<span class="muted">${samples.join(", ")}</span>` : ""}</li>
-        </ul>`,
+        </ul>
+        <form class="form link-form" data-api="/api/linkedin" data-reload>
+          <div class="field"><label for="li-url">LinkedIn profile link</label>
+            <div class="row"><input id="li-url" name="url" type="url" inputmode="url" placeholder="https://www.linkedin.com/in/your-name" value="${linkedinUrl ?? ""}"><button class="btn" type="submit">Save link</button></div>
+          </div>
+          ${issuesBox()}
+        </form>`,
       html`<label class="btn primary upload">${resume ? "Replace resume" : "Upload resume"}<input type="file" accept="application/pdf" data-upload="resume" hidden></label>
-        <label class="btn upload">LinkedIn PDF<input type="file" accept="application/pdf" data-upload="linkedin" hidden></label>
         <label class="btn upload">Writing sample<input type="file" accept=".pdf,.txt,.md" data-upload="sample" multiple hidden></label>
+        <label class="btn ghost upload" title="Optional: LinkedIn → More → Save to PDF gives Claude more detail than your resume">LinkedIn PDF${linkedin ? " ✓" : ""} (optional)<input type="file" accept="application/pdf" data-upload="linkedin" hidden></label>
         <button type="button" class="btn ghost" data-open-folder="me">Open folder</button>`,
     )}
     ${step(

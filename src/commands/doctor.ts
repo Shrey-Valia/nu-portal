@@ -64,7 +64,8 @@ export default async function doctor(argv: string[]): Promise<number> {
     const me = loadMe();
     add("Profile (me/profile.yaml)", "ok", `${me.profile.identity.preferredName ?? me.profile.identity.name}: ${me.profile.experiences.length} experiences, ${me.profile.skills.length} skills, ${me.stories.length} stories`);
     add("Resume (me/resume.pdf)", me.files.resume ? "ok" : "warn", me.files.resume ? "found" : "missing");
-    add("LinkedIn PDF (me/linkedin.pdf)", me.files.linkedin ? "ok" : "warn", me.files.linkedin ? "found" : "missing (optional; LinkedIn → More → Save to PDF)");
+    const li = me.profile.identity.links.linkedin;
+    add("LinkedIn link", li ? "ok" : "warn", li ? li : "not set; app: Setup → LinkedIn profile link");
   } catch (err) {
     add("Profile (me/profile.yaml)", err instanceof MeMissingError ? "warn" : "fail", (err as Error).message.split("\n")[0]);
   }

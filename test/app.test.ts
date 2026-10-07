@@ -94,6 +94,14 @@ const FORM = {
   "targets.modalities": ["hybrid", "remote"],
 };
 
+test("LinkedIn is a link: validated, normalized, and held until the profile exists", async () => {
+  assert.equal((await post("/api/linkedin", { url: "https://evil.example/in/jane" })).status, 400);
+  assert.equal((await post("/api/linkedin", { url: "https://www.linkedin.com/company/acme" })).status, 400);
+  assert.equal((await post("/api/linkedin", { url: "linkedin.com/in/jane-husky/" })).status, 200);
+  assert.equal(readFileSync(path.join(ME, "linkedin.url"), "utf8").trim(), "https://www.linkedin.com/in/jane-husky");
+  assert.match((await call("/setup")).text, /linkedin\.com\/in\/jane-husky/);
+});
+
 test("profile saves only when valid, and keeps the old version", async () => {
   const bad = await post("/api/profile", { form: { "identity.name": "Jane" } });
   assert.equal(bad.status, 400);
@@ -106,10 +114,14 @@ test("profile saves only when valid, and keeps the old version", async () => {
   assert.match(saved, /Boston, MA/);
   assert.match(saved, /needsSponsorship: false/);
   assert.ok(!/usCitizen/.test(saved), "prefer-not-to-say leaves it out");
+  assert.match(saved, /linkedin: https:\/\/www\.linkedin\.com\/in\/jane-husky/, "the link saved earlier is merged in");
+  assert.equal(existsSync(path.join(ME, "linkedin.url")), false);
+  assert.equal((await post("/api/linkedin", { url: "https://linkedin.com/in/jane-h" })).status, 200);
+  assert.match(readFileSync(path.join(ME, "profile.yaml"), "utf8"), /in\/jane-h\n/);
 
   assert.equal((await post("/api/profile", { advanced: "secrets: true" })).status, 400);
   assert.equal((await post("/api/profile", { form: { ...FORM, "identity.preferredName": "J" } })).status, 200);
-  assert.equal(db.prepare("SELECT COUNT(*) AS n FROM profile_versions WHERE file = 'profile.yaml'").get()!.n, 1);
+  assert.equal(db.prepare("SELECT COUNT(*) AS n FROM profile_versions WHERE file = 'profile.yaml'").get()!.n, 2); // link update + second save
 });
 
 test("private details validate and are saved owner-only", async () => {

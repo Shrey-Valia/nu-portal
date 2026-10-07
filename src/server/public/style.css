@@ -323,3 +323,7 @@ pre.draft { white-space: pre-wrap; background: var(--surface-2); border-radius: 
 .form .field label { display: block; }
 .form label.chip { display: inline-flex; flex-direction: row; }
 .form label.check { display: flex; flex-direction: row; align-items: center; gap: 8px; font-weight: 500; }
+.link-form { margin-top: 10px; max-width: 560px; }
+.link-form .row { flex-wrap: nowrap; }
+.link-form input { flex: 1; }
+.link-form .issues { margin-top: 8px; }

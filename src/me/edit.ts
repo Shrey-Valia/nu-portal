@@ -42,6 +42,13 @@ function write(name: string, text: string, mode?: number): void {
 // ---------- profile.yaml
 
 export function readProfileDoc(preferDraft = false): { doc: Doc; source: "profile" | "draft" | "template" } {
+  const r = readProfileDocRaw(preferDraft);
+  const pending = pendingLinkedin();
+  if (pending && !getPath(r.doc, "identity.links.linkedin")) setPath(r.doc, "identity.links.linkedin", pending);
+  return r;
+}
+
+function readProfileDocRaw(preferDraft: boolean): { doc: Doc; source: "profile" | "draft" | "template" } {
   const text = readText("profile.yaml");
   if (text && !preferDraft) return { doc: (parse(text) as Doc) ?? {}, source: "profile" };
   const draft = parseDraftProfile();
@@ -65,6 +72,7 @@ export function saveProfileDoc(db: Db, doc: Doc): SaveResult {
   snapshot(db, "profile.yaml");
   write("profile.yaml", `# Your NU Portal profile. Edit in the app (Setup → Profile) or here.\n${stringify(doc, { lineWidth: 0 })}`);
   rmSync(path.join(DRAFTS_DIR(), "profile.yaml"), { force: true }); // draft has been reviewed
+  if (getPath(doc, "identity.links.linkedin")) rmSync(file(PENDING_LINKEDIN), { force: true });
   return { ok: true };
 }
 
@@ -185,6 +193,52 @@ export function applyAdvancedYaml(doc: Doc, text: string): Doc | { error: string
   const extra = Object.keys(part).filter((k) => !(ADVANCED_KEYS as readonly string[]).includes(k));
   if (extra.length) return { error: `Only ${ADVANCED_KEYS.join(", ")} belong here (found ${extra.join(", ")})` };
   return { ...structuredClone(doc), ...(part as Doc) };
+}
+
+// ---------- LinkedIn link
+// Lives in profile.yaml (identity.links.linkedin). Saved before a profile exists,
+// it waits in me/linkedin.url and is merged in when the profile is built or saved.
+
+const PENDING_LINKEDIN = "linkedin.url";
+
+export function normalizeLinkedin(input: string): string | null {
+  const url = withScheme(input);
+  if (!url) return null;
+  try {
+    const u = new URL(url);
+    const host = u.hostname.toLowerCase();
+    if (!(host === "linkedin.com" || host.endsWith(".linkedin.com"))) return null;
+    const m = u.pathname.match(/^\/in\/([^/]+)\/?$/);
+    return m ? `https://www.linkedin.com/in/${m[1]}` : null;
+  } catch {
+    return null;
+  }
+}
+
+export function pendingLinkedin(): string | null {
+  return readText(PENDING_LINKEDIN)?.trim() || null;
+}
+
+export function currentLinkedin(): string | null {
+  const text = readText("profile.yaml");
+  const fromProfile = text ? (getPath((parse(text) as Doc) ?? {}, "identity.links.linkedin") as string | undefined) : undefined;
+  return fromProfile || pendingLinkedin();
+}
+
+export function saveLinkedin(db: Db, input: string): SaveResult {
+  const url = normalizeLinkedin(input);
+  if (!url) return { ok: false, issues: ["That doesn't look like a LinkedIn profile link (https://www.linkedin.com/in/your-name)"] };
+  const text = readText("profile.yaml");
+  if (text) {
+    const doc = (parse(text) as Doc) ?? {};
+    setPath(doc, "identity.links.linkedin", url);
+    snapshot(db, "profile.yaml");
+    write("profile.yaml", `# Your NU Portal profile. Edit in the app (Setup → Profile) or here.\n${stringify(doc, { lineWidth: 0 })}`);
+    rmSync(file(PENDING_LINKEDIN), { force: true });
+  } else {
+    write(PENDING_LINKEDIN, `${url}\n`);
+  }
+  return { ok: true };
 }
 
 // ---------- private.yaml (form filling only; never sent to the AI)

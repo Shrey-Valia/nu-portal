@@ -15,6 +15,7 @@ import {
   issuesOf,
   readProfileDoc,
   saveAnswers,
+  saveLinkedin,
   savePrivate,
   saveProfileDoc,
   saveTextFile,
@@ -90,6 +91,14 @@ function saveProfile(ctx: Ctx, body: Body): ApiResult {
   const r = saveProfileDoc(ctx.db, doc);
   if (!r.ok) return invalid(r.issues);
   logEvent(ctx.db, { kind: "profile.saved", message: "Profile saved in the app" });
+  return ok({ ok: true });
+}
+
+function saveLinkedinLink(ctx: Ctx, body: Body): ApiResult {
+  if (typeof body.url !== "string" || !body.url.trim()) throw new HttpError(400, "Paste your LinkedIn profile link");
+  const r = saveLinkedin(ctx.db, body.url);
+  if (!r.ok) return invalid(r.issues);
+  logEvent(ctx.db, { kind: "profile.linkedin", message: "LinkedIn link saved" });
   return ok({ ok: true });
 }
 
@@ -246,6 +255,7 @@ export function handleSetupApi(ctx: Ctx, method: string, pathname: string, body:
   if (pathname === "/api/apply/confirm") return confirm(ctx, body);
   if (pathname === "/api/profile") return saveProfile(ctx, body);
   if (pathname === "/api/private") return savePrivateForm(ctx, body);
+  if (pathname === "/api/linkedin") return saveLinkedinLink(ctx, body);
   if (pathname === "/api/answers") return saveAnswerBank(ctx, body);
   if ((m = pathname.match(/^\/api\/text\/([\w.-]+)$/))) return saveText(ctx, m[1], body);
   if ((m = pathname.match(/^\/api\/drafts\/([\w.-]+)\/(accept|discard)$/))) return draftAction(ctx, m[1], m[2]);
