@@ -213,6 +213,16 @@ test("drafts: text drafts can be accepted; the profile draft goes through the ed
   assert.ok(existsSync(path.join(ME, "profile.yaml")), "nothing outside drafts was touched");
 });
 
+test("Writing page shows your drafted voice, and saving it retires the draft", async () => {
+  writeFileSync(path.join(ME, "drafts", "voice.md"), "# Voice\n\n- Short sentences, concrete numbers.\n");
+  const page = (await call("/writing")).text;
+  assert.match(page, /Short sentences, concrete numbers/);
+  assert.match(page, /Drafted from your resume/);
+  assert.equal((await post("/api/text/voice.md", { text: "# Voice\n\n- Short sentences.\n" })).status, 200);
+  assert.equal(existsSync(path.join(ME, "drafts", "voice.md")), false);
+  assert.match(readFileSync(path.join(ME, "voice.md"), "utf8"), /Short sentences\./);
+});
+
 test("letter PDFs are served only from the letters folder", async () => {
   assert.equal((await call("/letters/..%2F..%2Fme%2Fprivate.yaml")).status, 404);
   assert.equal((await call("/letters/nope.pdf")).status, 404);

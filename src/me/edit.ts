@@ -4,7 +4,7 @@ import { parse, stringify } from "yaml";
 import type { z } from "zod";
 import { ME_DIR, ROOT } from "../config/paths.js";
 import { type Db, now } from "../db/db.js";
-import { DRAFTS_DIR, type DraftFile, parseDraftProfile, readDraft } from "./draft.js";
+import { DRAFT_FILES, DRAFTS_DIR, type DraftFile, parseDraftProfile, readDraft } from "./draft.js";
 import { withScheme } from "./edit-utils.js";
 import { AnswerBankSchema, type PrivateInfo, PrivateSchema, ProfileSchema } from "./schema.js";
 
@@ -283,7 +283,18 @@ export function readTextFile(name: TextFile): string {
   return readText(name) ?? readTemplate(name);
 }
 
-function readTemplate(name: TextFile): string {
+// What the Writing page shows: your file, else the draft built from your
+// documents, else an empty box (the example only appears as placeholder text).
+export function readTextForEdit(name: TextFile): { text: string; source: "file" | "draft" | "empty"; example: string } {
+  const example = readTemplate(name);
+  const own = readText(name);
+  if (own !== null) return { text: own, source: "file", example };
+  const draft = (DRAFT_FILES as readonly string[]).includes(name) ? readDraft(name as DraftFile) : null;
+  if (draft !== null) return { text: draft, source: "draft", example };
+  return { text: "", source: "empty", example };
+}
+
+export function readTemplate(name: TextFile): string {
   const t = path.join(ROOT, "templates", "me", name.replace(/\.md$/, ".example.md"));
   return existsSync(t) ? readFileSync(t, "utf8") : "";
 }
@@ -292,6 +303,7 @@ export function saveTextFile(db: Db, name: TextFile, text: string): SaveResult {
   if (text.length > 200_000) return { ok: false, issues: ["too long"] };
   snapshot(db, name);
   write(name, text.replace(/\r\n?/g, "\n"));
+  if ((DRAFT_FILES as readonly string[]).includes(name)) rmSync(path.join(DRAFTS_DIR(), name), { force: true }); // reviewed
   return { ok: true };
 }
 

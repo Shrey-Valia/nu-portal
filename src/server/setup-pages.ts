@@ -18,7 +18,8 @@ import {
   readAnswers,
   readPrivate,
   readProfileDoc,
-  readTextFile,
+  readTextForEdit,
+  type TextFile,
 } from "../me/edit.js";
 import { cleanSubmits, GRADUATION } from "../pipeline/apply-external.js";
 import { sessionView } from "../report/present.js";
@@ -86,7 +87,9 @@ export function setupPage(ctx: Ctx, claude: ClaudeStatus): string {
   const hasProfile = profileExists();
   const valid = hasProfile && profileValid();
   const answers = safe(() => readAnswers().length, 0);
-  const stories = (readTextFile("stories.md").match(/^##\s*\[story:/gm) ?? []).length;
+  const storyFile = readTextForEdit("stories.md");
+  const stories = storyFile.source === "file" ? (storyFile.text.match(/^##\s*\[story:/gm) ?? []).length : 0;
+  const storiesDrafted = storyFile.source === "draft";
   const session = sessionView(getKv(ctx.db, "session", null));
   const ext = ctx.settings.external;
   const scheduled = plistInstalled();
@@ -144,7 +147,11 @@ export function setupPage(ctx: Ctx, claude: ClaudeStatus): string {
     ${step(
       5,
       "Your answers and voice",
-      answers >= 5 && stories >= 3 ? pill("ok", `${answers} answers · ${stories} stories`) : pill("warn", `${answers} answers · ${stories} stories`),
+      storiesDrafted
+        ? pill("info", "Stories drafted, review them")
+        : answers >= 5 && stories >= 3
+          ? pill("ok", `${answers} answers · ${stories} stories`)
+          : pill("warn", `${answers} answers · ${stories} stories`),
       html`<p>Answers to common questions (sponsorship, start date…), your stories, and how you like to sound. Every letter and answer goes through the humanizer using these.</p>`,
       html`<a class="btn" href="/writing">Edit answers, stories, voice</a>`,
     )}
@@ -293,11 +300,16 @@ export function writingPage(ctx: Ctx): string {
     <input name="answer" value="${a.answer}" placeholder="your answer" aria-label="answer">
     <button type="button" class="btn ghost" data-remove-row aria-label="Remove">✕</button>
   </div>`;
-  const textForm = (file: string, title: string, help: string, rowsN: number) => html`<form class="panel form" data-api="/api/text/${file}">
+  const textForm = (file: TextFile, title: string, help: string, rowsN: number) => {
+    const t = readTextForEdit(file);
+    return html`<form class="panel form" data-api="/api/text/${file}" data-reload>
     <h2>${title}</h2><p class="muted small">${help}</p>
-    <textarea name="text" rows="${rowsN}" class="code">${readTextFile(file as "stories.md")}</textarea>
-    ${issuesBox()}<div class="row"><button class="btn primary" type="submit">Save</button></div>
+    ${t.source === "draft" ? html`<p class="flag flag-info">Drafted from your resume. Check every line (only true details), edit anything, then save to start using it.</p>` : ""}
+    ${t.source === "empty" && file !== "preferences.md" ? html`<p class="flag flag-warn">Nothing yet. Click “Build from my resume” on <a href="/setup">Setup</a> to draft this, or write your own.</p>` : ""}
+    <textarea name="text" rows="${rowsN}" class="code" placeholder="${t.example}">${t.text}</textarea>
+    ${issuesBox()}<div class="row"><button class="btn primary" type="submit">${t.source === "draft" ? "Looks right, save" : "Save"}</button></div>
   </form>`;
+  };
   const body = html`
   <div class="page-head"><h1>Answers, stories, voice</h1><p class="muted">Your own answers are used word for word before the AI is asked anything.</p></div>
   <form class="panel form" data-answers>
