@@ -39,7 +39,7 @@ export interface DailySummary {
 // The morning run. Every step is safe to repeat; a failure in one track never
 // stops the other or the report.
 export async function runDaily(opts: DailyOptions = {}): Promise<DailySummary> {
-  const release = acquireLock("daily");
+  const release = acquireLock("daily", "a daily run that's already going");
   const db = opts.db ?? openDb();
   const s = loadSettings();
   const runId = startRun(db, "daily", { via: opts.via ?? "cli" });

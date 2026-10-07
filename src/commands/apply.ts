@@ -85,7 +85,7 @@ export default async function apply(argv: string[]): Promise<number> {
     }
   }
 
-  const release = acquireLock("apply");
+  const release = acquireLock("apply", "an apply run that's already going");
   const runId = startRun(db, "apply-external", { mode, via: values.via });
   try {
     const outcomes = await applyExternal(db, getBrain(), loadMe(), loadSettings(), {

@@ -116,7 +116,13 @@ test("stories parser splits on headings", () => {
 });
 
 test("a busy browser lock says what is holding it", () => {
-  const release = acquireLock("purpose-lock", "the NUworks sign-in window");
-  assert.throws(() => acquireLock("purpose-lock"), /The NUworks sign-in window is using the browser .* close that Chrome window/);
+  const release = acquireLock("browser", "the NUworks sign-in window");
+  assert.throws(() => acquireLock("browser"), /The NUworks sign-in window is using the browser .* close that Chrome window/);
+  release();
+});
+
+test("a second daily run explains that one is already going", () => {
+  const release = acquireLock("daily-msg", "a daily run that's already going");
+  assert.throws(() => acquireLock("daily-msg"), /There's a daily run that's already going .* No need to start another/);
   release();
 });

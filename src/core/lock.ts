@@ -13,7 +13,9 @@ export class LockBusyError extends Error {
   ) {
     super(
       holderPurpose
-        ? `${holderPurpose[0].toUpperCase()}${holderPurpose.slice(1)} is using the browser (process ${holderPid}).${/sign-in window/.test(holderPurpose) ? " Finish signing in, close that Chrome window, then try again." : " Wait for it to finish, then try again."}`
+        ? lockName === "browser"
+          ? `${holderPurpose[0].toUpperCase()}${holderPurpose.slice(1)} is using the browser (process ${holderPid}).${/sign-in window/.test(holderPurpose) ? " Finish signing in, close that Chrome window, then try again." : " Wait for it to finish, then try again."}`
+          : `There's ${holderPurpose} (process ${holderPid}). No need to start another; its results show up on Today when it finishes.`
         : `"${lockName}" is busy (held by process ${holderPid}). Wait for it to finish.`,
     );
   }
