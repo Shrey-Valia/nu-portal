@@ -176,7 +176,9 @@ test("live job-list runs need a click token and confirm each application in the 
   assert.deepEqual(run.args.slice(0, 8), ["apply", "--track", "external", "--mode", "live", "--via", "dashboard", "--confirm"]);
   const issued = getKv<{ token: string } | null>(db, "dashboard.liveToken", null);
   assert.ok(issued && issued.token === run.env.NUPORTAL_DASHBOARD_LIVE_TOKEN);
-  assert.equal((await post("/api/apply", { track: "nuworks", mode: "live" })).status, 409);
+  const nu = await post("/api/apply", { track: "nuworks", mode: "live" });
+  assert.equal(nu.status, 200, nu.text);
+  assert.deepEqual(spawned.at(-1)!.args.slice(0, 8), ["apply", "--track", "nuworks", "--mode", "live", "--via", "dashboard", "--confirm"]);
 
   setKv(db, "apply.pending", { id: "abc", summary: "Acme — SWE Co-op", screenshot: "/etc/passwd", at: "now" });
   const pending = (await call("/api/apply/pending")).json().pending;
@@ -232,7 +234,7 @@ test("approved NUworks jobs are listed with a link, and 'I applied' records them
   const t = new Date().toISOString();
   db.prepare("INSERT INTO jobs (id, source, title, employer, apply_url, fingerprint, status, cover_letter, first_seen_at, last_seen_at, updated_at) VALUES ('nuworks:ap1', 'nuworks', 'Data Co-op', 'Acme', 'https://northeastern-csm.symplicity.com/students/app/jobs/detail/abc', 'fp-ap1', 'approved', 'not_accepted', ?, ?, ?)").run(t, t, t);
   const page = (await call("/")).text;
-  assert.match(page, /Approved: apply on NUworks/);
+  assert.match(page, /Approved, waiting to apply/);
   assert.match(page, /Open in NUworks/);
   assert.match(page, /No cover letter/);
   assert.equal((await post("/api/jobs/nuworks%3Aap1/applied", {})).status, 200);

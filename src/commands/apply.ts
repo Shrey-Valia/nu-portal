@@ -7,6 +7,7 @@ import { acquireLock } from "../core/lock.js";
 import { getKv, openDb, setKv } from "../db/db.js";
 import { loadMe } from "../me/load.js";
 import { applyExternal, type Mode } from "../pipeline/apply-external.js";
+import { applyNuworks } from "../pipeline/apply-nuworks.js";
 import { guiConfirm } from "../pipeline/confirm.js";
 
 // npm run apply -- --track external [--mode dry-run|rehearsal|live] [--headed] [--max N] [--job ID ...]
@@ -34,8 +35,8 @@ export default async function apply(argv: string[]): Promise<number> {
     console.error("--mode must be dry-run, rehearsal, or live");
     return 2;
   }
-  if (values.track === "nuworks") {
-    console.error("NUworks applying is built in Phase 5, after recon maps the apply form. Use the dashboard queue and apply by hand for now.");
+  if (values.track !== "nuworks" && values.track !== "external") {
+    console.error("--track must be nuworks or external");
     return 2;
   }
 
@@ -86,17 +87,13 @@ export default async function apply(argv: string[]): Promise<number> {
   }
 
   const release = acquireLock("apply", "an apply run that's already going");
-  const runId = startRun(db, "apply-external", { mode, via: values.via });
+  const runId = startRun(db, values.track === "nuworks" ? "apply-nuworks" : "apply-external", { mode, via: values.via });
   try {
-    const outcomes = await applyExternal(db, getBrain(), loadMe(), loadSettings(), {
-      mode,
-      unattended,
-      headed,
-      confirm,
-      max: values.max ? Number(values.max) : undefined,
-      jobIds: values.job,
-      runId,
-    });
+    const common = { mode, unattended, headed, confirm, max: values.max ? Number(values.max) : undefined, jobIds: values.job, runId };
+    const outcomes =
+      values.track === "nuworks"
+        ? await applyNuworks(db, loadSettings(), common)
+        : await applyExternal(db, getBrain(), loadMe(), loadSettings(), common);
     for (const o of outcomes) console.log(`${o.result.padEnd(15)} ${o.jobId}  ${o.detail}`);
     if (!outcomes.length) console.log("Nothing approved to apply to.");
     finishRun(db, runId, "ok", { outcomes });

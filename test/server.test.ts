@@ -285,9 +285,7 @@ test("proposals can be accepted or rejected", async () => {
   assert.equal((await post("/api/proposals/999", { status: "rejected" })).status, 404);
 });
 
-test("apply: live needs an unlock; dry runs spawn without a live token", async () => {
-  assert.equal((await post("/api/apply", { track: "nuworks", mode: "live" })).status, 409);
-  assert.equal(spawned.length, 0);
+test("apply: live runs get a one-time token on either track; dry runs spawn without one", async () => {
   assert.equal((await post("/api/apply", { track: "nuworks", mode: "yolo" })).status, 400);
 
   const dry = await post("/api/apply", { track: "external", mode: "dry-run" });
@@ -295,7 +293,6 @@ test("apply: live needs an unlock; dry runs spawn without a live token", async (
   assert.equal(dry.json().pid, 4242);
   assert.deepEqual(spawned.at(-1), { track: "external", mode: "dry-run", liveToken: null });
 
-  setKv(db, "nuworks.liveUnlocked", true);
   const live = await post("/api/apply", { track: "nuworks", mode: "live" });
   assert.equal(live.status, 200, live.text);
   const stored = getKv<{ token: string; track: string } | null>(db, "dashboard.liveToken", null);

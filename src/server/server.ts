@@ -295,8 +295,8 @@ export async function startServer(opts: ServerOptions): Promise<RunningServer> {
   ctx.spawnApply =
     opts.spawnApply ??
     ((r) => {
-      if (r.track !== "external") return spawnApplyCli(r);
-      const t = ctx.tasks.start(r.mode === "live" ? "apply-live" : "apply-dry", { liveToken: r.liveToken ?? undefined, watch: true });
+      const kind = r.track === "nuworks" ? (r.mode === "live" ? "apply-nuworks-live" : "apply-nuworks-dry") : r.mode === "live" ? "apply-live" : "apply-dry";
+      const t = ctx.tasks.start(kind, { liveToken: r.liveToken ?? undefined, watch: true });
       return { pid: t.pid, log: t.log };
     });
   const guard: Guard = { hosts: new Set(), origins: new Set() };

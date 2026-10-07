@@ -24,7 +24,9 @@ export type TaskKind =
   | "schedule-uninstall"
   | "report"
   | "resume-preview"
-  | "resume-tailor";
+  | "resume-tailor"
+  | "apply-nuworks-dry"
+  | "apply-nuworks-live";
 
 export interface TaskInput {
   repo?: string;
@@ -83,6 +85,8 @@ const SPECS: Record<TaskKind, Spec> = {
   "schedule-install": { label: "Turn on the daily schedule", args: () => ["schedule", "install"] },
   "schedule-uninstall": { label: "Turn off the daily schedule", args: () => ["schedule", "uninstall"] },
   report: { label: "Rebuild today's report", args: () => ["report"] },
+  "apply-nuworks-dry": { label: "NUworks practice run (nothing sent)", args: (i) => ["apply", "--track", "nuworks", "--mode", "dry-run", ...(i.watch ? ["--headed"] : [])] },
+  "apply-nuworks-live": { label: "Apply on NUworks", args: () => ["apply", "--track", "nuworks", "--mode", "live", "--via", "dashboard", "--confirm", "gui"] },
   "resume-preview": { label: "Preview my resume", args: () => ["resume", "preview"] },
   "resume-tailor": { label: "Tailor resumes now", args: () => ["resume", "tailor"] },
 };
@@ -139,7 +143,7 @@ export class TaskRunner {
     const log = path.join(LOGS(), `task-${k}-${id}.log`);
     const env: NodeJS.ProcessEnv = { ...process.env, FORCE_COLOR: "0" };
     delete env.NUPORTAL_DASHBOARD_LIVE_TOKEN;
-    if (k === "apply-live") {
+    if (k === "apply-live" || k === "apply-nuworks-live") {
       if (!input.liveToken) throw new HttpError(400, "Live runs need a token");
       env.NUPORTAL_DASHBOARD_LIVE_TOKEN = input.liveToken;
     }

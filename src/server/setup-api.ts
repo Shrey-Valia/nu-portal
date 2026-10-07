@@ -37,7 +37,7 @@ const invalid = (issues: string[]): ApiResult => ({ status: 400, body: { error: 
 function startTask(ctx: Ctx, body: Body): ApiResult {
   const kind = body.kind;
   if (typeof kind !== "string" || !(TASK_KINDS as string[]).includes(kind)) throw new HttpError(400, "Unknown task");
-  if (kind === "apply-live") throw new HttpError(400, "Start live runs with the Apply for real button");
+  if (kind === "apply-live" || kind === "apply-nuworks-live") throw new HttpError(400, "Start live runs with the Apply for real button");
   if (haltInfo(ctx.db) && (kind === "apply-dry" || kind === "daily")) throw new HttpError(409, "Halted after an accepted offer.");
   const input = (body.input && typeof body.input === "object" ? body.input : {}) as TaskInput;
   delete input.liveToken;

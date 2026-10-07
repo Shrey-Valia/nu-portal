@@ -8,6 +8,7 @@ import { ago, dayIn, daysBetween, formatDate, formatDateTime, formatLongDay, isD
 import type { DailyReport, HaltInfo, NeedsYouItem, QueueRow, Track } from "../report/types.js";
 import { CLEAR_PHRASE, notifyList } from "../core/halt.js";
 import { type Ctx, REASON_TAGS } from "./context.js";
+import { followUps, NUWORKS_GRADUATION, nuworksCleanSubmits } from "../pipeline/apply-nuworks.js";
 import { html, raw, safeUrl, type SafeHtml } from "./html.js";
 
 type Row = Record<string, unknown>;
@@ -257,14 +258,15 @@ function applyPanel(ctx: Ctx, halted: boolean): SafeHtml {
     <h2 id="apply-h">Submit approved</h2>
     ${halted ? html`<p class="flag flag-bad">Halted. Apply runs are off.</p>` : ""}
     ${tracks.map(([t, name]) => {
-      // Job-list live runs ask you to confirm each supervised application right here.
-      const unlocked = t === "external" || getKv<unknown>(ctx.db, `${t}.liveUnlocked`, false) === true;
+      // Live runs ask you to confirm each supervised application right here.
+      const unlocked = true;
+      const left = Math.max(0, NUWORKS_GRADUATION - nuworksCleanSubmits(ctx.db));
       const note =
         t === "external"
           ? "Live opens Chrome and fills each form. Before anything is sent you see a screenshot here and click Submit or Skip."
-          : unlocked
-            ? "Live submits for real, within your limits."
-            : "NUworks applying turns on after NUworks is mapped (Phase 2). Approve here, apply by hand for now.";
+          : left > 0
+            ? `Applies to your approved NUworks jobs with your approved resume. The first ${left} pause here for your Submit click; after that it applies on its own.`
+            : "Applies to your approved NUworks jobs with your approved resume, within your weekly limit.";
       return html`<div class="apply-track">
         <div class="apply-head"><strong>${name}</strong><span class="muted">${approved[t]} approved</span></div>
         <div class="row">
@@ -344,8 +346,8 @@ function approvedList(ctx: Ctx): SafeHtml {
   if (!rows.length) return html``;
   const tz = ctx.settings.timezone;
   return html`<section class="panel approved" aria-labelledby="approved-h">
-    <h2 id="approved-h">Approved: apply on NUworks <span class="count">${rows.length}</span></h2>
-    <p class="muted small">Open each one, click Apply in NUworks, and attach the documents below. Click “I applied” when done (or the next daily run notices it).</p>
+    <h2 id="approved-h">Approved, waiting to apply <span class="count">${rows.length}</span></h2>
+    <p class="muted small">Click <b>Apply for real</b> (NUworks, on the right) and NU Portal applies to these. Applying yourself instead? Open the posting, then click “I applied”.</p>
     <ul class="list">${rows.map((r) => {
       const letter = typeof r.letter_pdf === "string" ? letterHref(r.letter_pdf) : null;
       const resume = typeof r.resume_pdf === "string" ? letterHref(r.resume_pdf) : null;
@@ -358,6 +360,22 @@ function approvedList(ctx: Ctx): SafeHtml {
         <button type="button" class="btn" data-mark-applied="${String(r.id)}">I applied</button>
       </li>`;
     })}</ul>
+  </section>`;
+}
+
+function followUpList(ctx: Ctx): SafeHtml {
+  const items = followUps(ctx.db);
+  if (!items.length) return html``;
+  return html`<section class="panel followups" aria-labelledby="followups-h">
+    <h2 id="followups-h">Finish on the employer's site <span class="count">${items.length}</span></h2>
+    <p class="muted small">Your NUworks application went in, but these employers also want you to apply at their link.</p>
+    <ul class="list">${items.map(
+      (f) => html`<li data-followup-row>
+        <div class="grow"><a class="role" href="${jobHref(f.jobId)}">${f.title}</a> <span class="muted">· ${f.employer}</span></div>
+        ${extLink(f.url, "Apply at their link ↗")}
+        <button type="button" class="btn" data-followup-done="${f.jobId}">Done</button>
+      </li>`,
+    )}</ul>
   </section>`;
 }
 
@@ -375,6 +393,7 @@ export function todayPage(ctx: Ctx): string {
   ${healthBar(r)}
   <div class="today">
     <div class="main-col">
+    ${followUpList(ctx)}
     ${approvedList(ctx)}
     <section class="queue" aria-labelledby="queue-h">
       <div class="section-head">

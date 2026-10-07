@@ -179,7 +179,7 @@
   async function startApply(button) {
     const track = button.dataset.applyTrack;
     const mode = button.dataset.applyMode;
-    const name = track === "nuworks" ? "NUworks" : "external";
+    const name = track === "nuworks" ? "NUworks" : "job-list";
     if (mode === "live" && !confirm(`Submit your approved ${name} applications for real?\n\nThis sends applications to employers.`)) return;
     button.disabled = true;
     const startedAfter = Date.now() - 5000;
@@ -498,6 +498,17 @@
         /* ignore */
       }
       return void startTask(taskBtn.dataset.task, input);
+    }
+    const followDone = t.closest("[data-followup-done]");
+    if (followDone) {
+      try {
+        await post(`/api/followups/${encodeURIComponent(followDone.dataset.followupDone)}/done`);
+        followDone.closest("[data-followup-row]")?.remove();
+        toast("Marked done");
+      } catch (err) {
+        toast(err.message, "error");
+      }
+      return;
     }
     const applied = t.closest("[data-mark-applied]");
     if (applied) {

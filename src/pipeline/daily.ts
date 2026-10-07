@@ -15,6 +15,7 @@ import { LiveAdapter, NuworksSignedOutError } from "../nuworks/live-adapter.js";
 import { checkSession } from "../nuworks/session.js";
 import { writeDailyReport } from "../report/write.js";
 import { applyExternal } from "./apply-external.js";
+import { applyNuworks, NUWORKS_GRADUATION, nuworksCleanSubmits } from "./apply-nuworks.js";
 import { discoverExternal, relevancePending } from "./external.js";
 import { discover, draftLetters, draftResumes, evaluate, expireStale, nuworksBudgetNow, scorePending, selectForQueue, syncApplications } from "./nuworks.js";
 
@@ -107,6 +108,16 @@ export async function runDaily(opts: DailyOptions = {}): Promise<DailySummary> {
         else problem(`NUworks step failed: ${(err as Error).message}`, "nuworks.failed");
       } finally {
         await adapter?.close();
+      }
+    }
+
+    // Approved NUworks jobs get applied to on the schedule once the applier has
+    // passed its supervised submits (before that, you confirm each in the app).
+    if (opts.nuworks !== false && !halt && opts.via === "schedule" && process.env.NUPORTAL_LAUNCHD === "1" && nuworksCleanSubmits(db) >= NUWORKS_GRADUATION) {
+      try {
+        summary.nuworks.applied = await applyNuworks(db, s, { mode: "live", unattended: true, runId });
+      } catch (err) {
+        problem(`NUworks applying failed: ${(err as Error).message}`, "nuworks.apply_failed");
       }
     }
 

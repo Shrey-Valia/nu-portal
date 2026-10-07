@@ -68,3 +68,15 @@ Offers must be **recorded and accepted in NUworks Student Utilities → My Co-op
 - The Apply dialog (document selection, screening questions, confirmation).
 - The Documents page: resume approval status, whether cover letter uploads need approval, document limits.
 - The Summer 2027 Work Term ids (only needed to filter by term on the server; NU Portal also checks each posting's term itself).
+
+## Apply dialog (mapped 2026-10-07)
+Clicking the posting's `button "apply"` opens a modal `dialog` titled "Apply to <employer>":
+- **"Submit Your Application"** section: a native `<select>` labelled "Resume *" holding the student's documents. The approved default resume is preselected. There's an "add a new resume" button, then **Cancel** and **Submit** buttons. No file inputs appear unless a new document is added.
+- **Two variants:**
+  1. Resume only (most postings).
+  2. With a **"How to Apply"** panel on the left, e.g. "Apply online at https://…". The employer wants an outside application too; the same URL appears in the posting's `contact_blurb` and `resume_mode` contains `other`.
+- **Requests while opening:**
+  - `GET /api/v3/jobresumes/form-structure?position=<job_id>&view=apply&form_view=apply` returns the form groups: Resume (picklist), and Cover Letter, Writing / Work Sample or Portfolio, Transcript, Student Employment Application (hidden unless the posting requires them). Hidden keys are `resume_id`, `position`, `student`.
+  - `GET /api/v2/student/documents?all=1&json_mode=raw` returns the documents with `document_type`, `approved` (1/0), `default_resume`, and `status`.
+  - `POST /api/v3/student-activity` is activity logging, not an application.
+- **Confirming an application:** after Submit, re-fetch `/api/v3/jobs/<id>`. `applied: true` is authoritative.

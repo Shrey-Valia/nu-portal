@@ -7,6 +7,7 @@ import { readHalt } from "../report/build.js";
 import { isDay } from "../core/time.js";
 import { type ApplyMode, type ApplyTrack, type Ctx, HttpError, REASON_TAGS } from "./context.js";
 import { handleSetupApi } from "./setup-api.js";
+import { doneFollowUp } from "../pipeline/apply-nuworks.js";
 
 type Body = Record<string, unknown>;
 type Row = Record<string, unknown>;
@@ -151,7 +152,7 @@ function startApply(ctx: Ctx, body: Body): ApiResult {
   if (mode === "live") {
     // Job-list live runs ask you to confirm each supervised application in the app, so they
     // need no separate unlock. NUworks stays locked until its apply flow is built.
-    if (track !== "external" && getKv<unknown>(ctx.db, `${track}.liveUnlocked`, false) !== true) throw new HttpError(409, "NUworks applying turns on after NUworks is mapped.");
+    // Both tracks confirm each supervised application in the app; no separate unlock.
     // One-time proof for the CLI that a person clicked Live in this dashboard.
     liveToken = randomBytes(32).toString("base64url");
     setKv(ctx.db, "dashboard.liveToken", { token: liveToken, track, at: now() });
@@ -207,6 +208,7 @@ export function handleApi(ctx: Ctx, method: string, pathname: string, body: Body
   if ((m = pathname.match(/^\/api\/jobs\/([^/]+)\/decision$/))) return decide(ctx, param(m[1]), body);
   if ((m = pathname.match(/^\/api\/jobs\/([^/]+)\/letter$/))) return editLetter(ctx, param(m[1]), body);
   if ((m = pathname.match(/^\/api\/jobs\/([^/]+)\/applied$/))) return markApplied(ctx, param(m[1]));
+  if ((m = pathname.match(/^\/api\/followups\/([^/]+)\/done$/))) return ok({ ok: doneFollowUp(ctx.db, param(m[1])) });
   if (pathname === "/api/halt") return haltNow(ctx, body);
   if (pathname === "/api/halt/clear") return clearHaltNow(ctx, body);
   if (pathname === "/api/apply") return startApply(ctx, body);
