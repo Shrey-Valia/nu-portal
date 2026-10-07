@@ -3,6 +3,7 @@ import path from "node:path";
 import { chromium } from "playwright";
 import { BROWSER_PROFILE_DIR, DATA_DIR, NUWORKS_URL } from "../config/paths.js";
 import { acquireLock } from "../core/lock.js";
+import { restoreSessionState, saveSessionState } from "../nuworks/browser.js";
 
 export const CDP_PORT = 9222;
 
@@ -23,6 +24,7 @@ export default async function recon(): Promise<number> {
     args: [`--remote-debugging-port=${CDP_PORT}`, "--remote-debugging-address=127.0.0.1"],
     recordHar: { path: har, urlFilter: /nuworks\.northeastern\.edu|symplicity\.com/, content: "embed" },
   });
+  await restoreSessionState(context);
   const page = context.pages()[0] ?? (await context.newPage());
   await page.goto(NUWORKS_URL);
   console.log(
@@ -37,7 +39,10 @@ export default async function recon(): Promise<number> {
       "",
     ].join("\n"),
   );
+  // Keep the saved session fresh while the window is open (Chrome drops it on close).
+  const keepFresh = setInterval(() => saveSessionState(context).catch(() => {}), 60_000);
   await context.waitForEvent("close", { timeout: 0 });
+  clearInterval(keepFresh);
   await context.close().catch(() => {});
   release();
   console.log(`Saved ${har}`);

@@ -120,3 +120,14 @@ test("pacing lands near 20 a week and respects the cap", () => {
   assert.ok(nearCap.dailyQueueTarget <= 4);
   assert.equal(nuworksBudget({ ...base, queuedPending: 9 }).dailyQueueTarget, 0);
 });
+
+test("NUworks can search several co-op terms", async () => {
+  const { SettingsSchema, nuworksTerms } = await import("../src/config/settings.js");
+  assert.deepEqual(nuworksTerms(SettingsSchema.parse({})), ["Spring 2027"]);
+  const both = SettingsSchema.parse({ nuworks: { terms: ["Spring 2027", "Summer 2027"] } });
+  assert.deepEqual(nuworksTerms(both), ["Spring 2027", "Summer 2027"]);
+  const c = ctx({ wantedTerms: nuworksTerms(both) });
+  assert.equal(code(applyFilters(job({ terms: ["Summer 2027"] }), profile, c)), "pass");
+  assert.equal(code(applyFilters(job({ terms: ["Spring-Summer 2027"] }), profile, c)), "pass");
+  assert.equal(code(applyFilters(job({ terms: ["Fall 2027"] }), profile, c)), "wrong_term");
+});

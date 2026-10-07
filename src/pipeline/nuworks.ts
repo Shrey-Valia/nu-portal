@@ -3,7 +3,7 @@ import type { PostingForPrompt } from "../brain/prompts/context.js";
 import { SCORE_PROMPT_VERSION, ScoreResults, scorePrompt } from "../brain/prompts/score.js";
 import { type Brain, BrainUnavailableError } from "../brain/types.js";
 import { LETTERS_DIR } from "../config/paths.js";
-import type { Settings } from "../config/settings.js";
+import { nuworksTerms, type Settings } from "../config/settings.js";
 import { nuworksBudget } from "../core/budget.js";
 import { logEvent, transition } from "../core/events.js";
 import { applyFilters } from "../core/filters.js";
@@ -86,7 +86,7 @@ export function evaluate(db: Db, me: Me, s: Settings, track: "nuworks" | "extern
   let filtered = 0;
   const base = {
     now: new Date(),
-    wantedTerms: track === "nuworks" ? [s.cycle.label] : s.external.terms,
+    wantedTerms: track === "nuworks" ? nuworksTerms(s) : s.external.terms,
     maxPerEmployer: track === "nuworks" ? s.nuworks.maxPerEmployer : s.external.maxPerCompany,
     postedWithinDays: track === "external" ? s.external.postedWithinDays : undefined,
   };

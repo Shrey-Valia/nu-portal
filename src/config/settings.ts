@@ -19,6 +19,8 @@ export const SettingsSchema = z.object({
     .prefault({}),
   nuworks: z
     .object({
+      // Co-op terms to search, e.g. ["Spring 2027", "Summer 2027"]. Empty = just cycle.label.
+      terms: z.array(z.string()).default([]),
       weeklyLimit: z.number().int().positive().default(20),
       minDailyQueue: z.number().int().nonnegative().default(2),
       maxDailyQueue: z.number().int().positive().default(10),
@@ -93,4 +95,9 @@ export function saveSettings(input: unknown, file = SETTINGS_PATH): Settings {
   writeFileSync(file, `# NU Portal settings. Edit here or in the app (Settings).\n${stringify(settings)}`);
   if (file === SETTINGS_PATH) cached = settings;
   return settings;
+}
+
+// The co-op terms NUworks searches and filters on.
+export function nuworksTerms(s: Settings): string[] {
+  return s.nuworks.terms.length ? s.nuworks.terms : [s.cycle.label];
 }

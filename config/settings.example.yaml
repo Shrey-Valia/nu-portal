@@ -10,6 +10,7 @@ cycle:
   seasonEnd: 2027-01-08
 
 nuworks:
+  terms: [Spring 2027, Summer 2027]  # every co-op term you'd take
   weeklyLimit: 20         # your own limit, inside the 100 cap
   minDailyQueue: 2
   maxDailyQueue: 10

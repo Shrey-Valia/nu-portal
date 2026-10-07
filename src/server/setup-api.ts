@@ -164,6 +164,7 @@ function saveSettingsForm(ctx: Ctx, body: Body): ApiResult {
   const s = structuredClone(ctx.settings);
   const f = body as Record<string, unknown>;
   s.cycle.label = String(f["cycle.label"] ?? s.cycle.label).trim();
+  if (f["nuworks.terms"] !== undefined) s.nuworks.terms = lines(f["nuworks.terms"]);
   s.cycle.cap = num(f["cycle.cap"] ?? s.cycle.cap);
   s.cycle.reserve = num(f["cycle.reserve"] ?? s.cycle.reserve);
   s.nuworks.weeklyLimit = num(f["nuworks.weeklyLimit"] ?? s.nuworks.weeklyLimit);

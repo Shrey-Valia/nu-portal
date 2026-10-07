@@ -81,7 +81,7 @@ export async function saveSessionState(context: BrowserContext): Promise<void> {
   chmodSync(STATE_FILE, 0o600);
 }
 
-async function restoreSessionState(context: BrowserContext): Promise<void> {
+export async function restoreSessionState(context: BrowserContext): Promise<void> {
   if (!existsSync(STATE_FILE)) return;
   try {
     const { cookies } = JSON.parse(readFileSync(STATE_FILE, "utf8")) as { cookies: Parameters<BrowserContext["addCookies"]>[0] };

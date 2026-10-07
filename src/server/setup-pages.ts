@@ -370,7 +370,8 @@ export function settingsPage(ctx: Ctx): string {
   <div class="page-head"><h1>Settings</h1></div>
   <form class="panel form" data-api="/api/settings" data-reload>
     <fieldset><legend>NUworks</legend><div class="grid">
-      <div class="field"><label for="s-cycle">Co-op cycle</label><input id="s-cycle" name="cycle.label" value="${s.cycle.label}"><small class="muted">e.g. Spring 2027</small></div>
+      <div class="field wide"><label for="s-terms-nu">Co-op terms to search</label><input id="s-terms-nu" name="nuworks.terms" value="${(s.nuworks.terms.length ? s.nuworks.terms : [s.cycle.label]).join(", ")}"><small class="muted">every term you'd take, comma separated, e.g. Spring 2027, Summer 2027</small></div>
+      <div class="field"><label for="s-cycle">Cap cycle name</label><input id="s-cycle" name="cycle.label" value="${s.cycle.label}"><small class="muted">the cycle your 100 applications count against</small></div>
       ${num("nuworks.weeklyLimit", "Applications per week", s.nuworks.weeklyLimit, "your own limit")}
       ${num("cycle.cap", "Cycle cap", s.cycle.cap, "NUworks allows 100", 1)}
       ${num("cycle.reserve", "Keep in reserve", s.cycle.reserve, "for postings you find yourself")}
