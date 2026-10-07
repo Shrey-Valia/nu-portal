@@ -6,6 +6,7 @@ import { LETTERS_DIR } from "../config/paths.js";
 import { nuworksTerms, type Settings } from "../config/settings.js";
 import { nuworksBudget } from "../core/budget.js";
 import { logEvent, transition } from "../core/events.js";
+import { canTransition } from "../core/states.js";
 import { applyFilters } from "../core/filters.js";
 import { looksLikeInjection, sanitizePosting } from "../core/sanitize.js";
 import { localDay, startOfLocalDay, weekdaysLeftInWeek, weekStartDay } from "../core/time.js";
@@ -39,6 +40,16 @@ export async function syncApplications(db: Db, adapter: NuworksAdapter, s: Setti
     db.prepare("INSERT INTO cap_snapshots (cycle_id, taken_at, nuworks_count, cap_shown, raw) VALUES (?, ?, ?, ?, ?)").run(cycleId, now(), snap.capCount ?? snap.rows.length, snap.capShown, json(snap.rows));
     for (const r of snap.rows) {
       const jobId = `nuworks:${r.jobId}`;
+      // Applied by hand on NUworks (NUworks applying isn't automated yet): record it.
+      const job = getJob(db, jobId);
+      if (job && canTransition(job.status, "applied_manual")) {
+        transition(db, jobId, "applied_manual", "found in your NUworks applications", runId);
+        const at = r.appliedAt && !Number.isNaN(Date.parse(r.appliedAt)) ? new Date(r.appliedAt).toISOString() : now();
+        db.prepare(
+          "INSERT OR IGNORE INTO applications (job_id, track, cycle_id, via, result, started_at, submitted_at, remote_status) VALUES (?, 'nuworks', ?, 'manual', 'submitted', ?, ?, ?)",
+        ).run(jobId, cycleId, at, at, r.status);
+        logEvent(db, { runId, jobId, kind: "application.manual", message: `You applied to ${job.title} at ${job.employer}` });
+      }
       const app = db.prepare("SELECT remote_status FROM applications WHERE job_id = ?").get(jobId) as { remote_status: string | null } | undefined;
       if (app && app.remote_status !== r.status) {
         db.prepare("UPDATE applications SET remote_status = ?, remote_status_at = ? WHERE job_id = ?").run(r.status, now(), jobId);

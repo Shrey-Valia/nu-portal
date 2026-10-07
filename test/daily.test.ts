@@ -70,3 +70,22 @@ test("kill switch halts pending jobs and blocks new queueing", async () => {
   assert.ok(s.problems.some((p) => p.includes("halted")));
   assert.equal(db.prepare("SELECT COUNT(*) AS n FROM jobs WHERE status = 'queued'").get()!.n, 0);
 });
+
+test("jobs you apply to by hand on NUworks are recorded by the next sync", async () => {
+  const { readFileSync: read, writeFileSync: write } = await import("node:fs");
+  const { TMP } = await import("./helpers.js");
+  const db = openDb(":memory:");
+  const tuesday = new Date("2026-10-06T13:00:00Z");
+  await runDaily({ db, fixture: FIXTURE, external: false, letters: false, now: tuesday });
+  assert.equal(status(db, "nuworks:1001"), "queued");
+  const data = JSON.parse(read(FIXTURE, "utf8"));
+  data.applications = { rows: [{ jobId: "1001", title: "Backend Software Engineer Co-op", employer: "Lumen Health", appliedAt: "Oct 06, 2026, 2:19 PM", status: "submitted" }], capCount: 4, capShown: null };
+  const withApp = path.join(TMP, "postings-applied.json");
+  write(withApp, JSON.stringify(data));
+  const s = await runDaily({ db, fixture: withApp, external: false, letters: false, now: tuesday });
+  assert.equal(status(db, "nuworks:1001"), "applied_manual");
+  const app = db.prepare("SELECT via, result, submitted_at FROM applications WHERE job_id = 'nuworks:1001'").get() as { via: string; result: string; submitted_at: string };
+  assert.deepEqual([app.via, app.result], ["manual", "submitted"]);
+  assert.match(app.submitted_at, /^2026-10-06T/);
+  assert.equal((s.nuworks.budget as { weekRemaining: number }).weekRemaining, 19, "counts toward this week's 20");
+});
