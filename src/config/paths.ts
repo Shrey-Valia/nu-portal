@@ -21,7 +21,8 @@ export const LOCKS_DIR = path.join(DATA_DIR, "locks");
 // project's CLAUDE.md or MCP servers.
 export const BRAIN_SANDBOX_DIR = path.join(DATA_DIR, "brain-sandbox");
 
-export const SETTINGS_PATH = path.join(ROOT, "config", "settings.yaml");
+// Tests point this at a temp file so your own settings never affect them.
+export const SETTINGS_PATH = process.env.NUPORTAL_SETTINGS ?? path.join(ROOT, "config", "settings.yaml");
 export const SETTINGS_EXAMPLE_PATH = path.join(ROOT, "config", "settings.example.yaml");
 export const MIGRATIONS_DIR = path.join(ROOT, "src", "db", "migrations");
 

@@ -6,4 +6,5 @@ import path from "node:path";
 export const TMP = mkdtempSync(path.join(os.tmpdir(), "nuportal-test-"));
 process.env.NUPORTAL_DATA_DIR = path.join(TMP, "data");
 process.env.NUPORTAL_ME_DIR = path.join(TMP, "me");
+process.env.NUPORTAL_SETTINGS = path.join(TMP, "settings.yaml"); // defaults, never your real settings
 process.env.NUPORTAL_QUIET = "1";

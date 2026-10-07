@@ -63,6 +63,7 @@ export interface QueueRow {
   gaps: string[];
   redFlags: string[];
   suspectedInjection: boolean;
+  coverLetter: "required" | "optional" | "not_accepted" | "unknown";
 }
 
 export type NeedsYouKind = "submit_unknown" | "needs_manual" | "manual_todo" | "needs_login" | "captcha";

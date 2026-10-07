@@ -176,7 +176,7 @@ function decisionButtons(): SafeHtml {
     <button type="button" class="btn" data-action="defer">Defer <kbd>D</kbd></button>`;
 }
 
-function queueCard(q: QueueRow, letter: LetterRow | undefined, tz: string, day: string): SafeHtml {
+function queueCard(q: QueueRow, letter: LetterRow | undefined, tz: string, day: string, writesOptional: boolean): SafeHtml {
   const deadline = q.deadlineAt ? html`${formatDateTime(q.deadlineAt, tz)} <span class="muted">(${daysLeftText(daysBetween(day, dayIn(tz, q.deadlineAt)))})</span>` : "Not listed";
   const meta = [q.employer, q.location, q.modality && q.modality !== "unknown" ? q.modality : null].filter(Boolean).join(" · ");
   const letterId = `letter-${q.jobId}`;
@@ -203,10 +203,13 @@ function queueCard(q: QueueRow, letter: LetterRow | undefined, tz: string, day: 
     </div>`
         : ""
     }
-    <details class="letter">
+    ${
+      q.coverLetter === "not_accepted" && !letter
+        ? html`<p class="muted small doc-note">📄 Resume only: this posting doesn't take a cover letter.</p>`
+        : html`<details class="letter"${q.coverLetter === "required" && !letter ? raw(" open") : ""}>
       <summary>
-        <span class="summary-label">Cover letter <span class="muted" data-letter-version>${letter ? `v${letter.version}${letter.source === "edit" ? " · edited" : ""}` : "none yet"}</span></span>
-        <span class="preview" data-letter-preview>${letter ? preview(letter.body) : "Write one here if you like."}</span>
+        <span class="summary-label">Cover letter ${q.coverLetter === "required" ? html`<span class="pill pill-warn">required</span> ` : q.coverLetter === "optional" ? html`<span class="pill">optional</span> ` : ""}<span class="muted" data-letter-version>${letter ? `v${letter.version}${letter.source === "edit" ? " · edited" : ""}` : "none yet"}</span></span>
+        <span class="preview" data-letter-preview>${letter ? preview(letter.body) : q.coverLetter === "required" || (q.coverLetter === "optional" && writesOptional) ? "Not written yet. NU Portal drafts it on the next daily run, or write one here." : "Optional. Write one here if you like."}</span>
       </summary>
       <label class="sr-only" for="${letterId}">Cover letter text</label>
       <textarea id="${letterId}" name="body" rows="14" spellcheck="true">${letter?.body ?? ""}</textarea>
@@ -214,7 +217,8 @@ function queueCard(q: QueueRow, letter: LetterRow | undefined, tz: string, day: 
         <button type="button" class="btn" data-action="save-letter">Save as new version</button>
         <span class="muted small" data-letter-status></span>
       </div>
-    </details>
+    </details>`
+    }
     <div class="actions">
       ${decisionButtons()}
       <span class="spacer"></span>
@@ -333,7 +337,7 @@ export function todayPage(ctx: Ctx): string {
         <p class="hint">Focus a card, then <kbd>A</kbd> approve · <kbd>S</kbd> skip · <kbd>D</kbd> defer · <kbd>J</kbd>/<kbd>K</kbd> move</p>
       </div>
       <noscript><p class="flag flag-warn">The buttons on this page need JavaScript.</p></noscript>
-      ${r.queue.length ? r.queue.map((q) => queueCard(q, letters.get(q.jobId), tz, day)) : ""}
+      ${r.queue.length ? r.queue.map((q) => queueCard(q, letters.get(q.jobId), tz, day, ctx.settings.nuworks.coverLetters === "whenAccepted")) : ""}
       <p class="empty"${r.queue.length ? raw(" hidden") : ""} data-queue-empty>Nothing to review. New matches arrive with the daily run.</p>
     </section>
     <aside class="side">

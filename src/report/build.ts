@@ -88,6 +88,7 @@ export function queueRows(db: Db): QueueRow[] {
     gaps: asStrings(parseJson(str(r.gaps), [])),
     redFlags: asStrings(parseJson(str(r.red_flags), [])),
     suspectedInjection: Number(r.suspected_injection ?? 0) === 1,
+    coverLetter: (["required", "optional", "not_accepted"].includes(String(r.cover_letter)) ? r.cover_letter : "unknown") as QueueRow["coverLetter"],
   }));
 }
 
