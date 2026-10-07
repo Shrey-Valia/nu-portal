@@ -264,7 +264,8 @@ export function parseDocs(row: JobRow): string[] {
 // A tailored resume for each queued or approved job that doesn't have a current one
 // (or whose one was made from an older version of your profile).
 export async function draftResumes(db: Db, brain: Brain, me: Me, runId: number, source: "nuworks" | "external" = "nuworks"): Promise<{ written: number; reverted: number }> {
-  const jobs = (["queued", "approved"] as const).flatMap((st) => jobsInState(db, st, source));
+  // Approved first: those are the ones you're about to apply to.
+  const jobs = (["approved", "queued"] as const).flatMap((st) => jobsInState(db, st, source));
   let written = 0;
   let reverted = 0;
   for (const job of jobs) {
