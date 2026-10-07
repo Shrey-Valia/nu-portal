@@ -64,6 +64,7 @@ export interface QueueRow {
   redFlags: string[];
   suspectedInjection: boolean;
   coverLetter: "required" | "optional" | "not_accepted" | "unknown";
+  resume: { pdfPath: string | null; changes: string[]; reverted: string[] } | null;
 }
 
 export type NeedsYouKind = "submit_unknown" | "needs_manual" | "manual_todo" | "needs_login" | "captcha";

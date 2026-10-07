@@ -330,3 +330,6 @@ pre.draft { white-space: pre-wrap; background: var(--surface-2); border-radius: 
 .main-col { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
 .approved .list li { align-items: center; }
 .doc-note { margin: 10px 0 0; }
+.resume-note { margin-top: 10px; font-size: .9rem; }
+.resume-note summary { cursor: pointer; }
+.resume-note ul { margin: 6px 0 4px 18px; padding: 0; }

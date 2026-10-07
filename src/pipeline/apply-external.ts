@@ -21,7 +21,7 @@ import { loadPrivate, type Me } from "../me/load.js";
 import type { PrivateInfo } from "../me/schema.js";
 import { answerFromBank, pickOption } from "../writing/answer-bank.js";
 import { writeAnswer, writeCoverLetter } from "../writing/compose.js";
-import { toPrompt } from "./nuworks.js";
+import { tailorAndRender, toPrompt } from "./nuworks.js";
 
 // Applies to approved postings on Greenhouse / Lever / Ashby.
 //   dry-run:  open, fill, screenshot, stop. Nothing is sent.
@@ -196,7 +196,12 @@ async function buildPlan(db: Db, brain: Brain, me: Me, priv: PrivateInfo, s: Set
     }
   }
 
-  const { plan, unresolved } = standardFillPlan(form, me.profile, priv, { resume: me.files.resume!, coverLetter: letterPdf });
+  let resumePdf = me.files.resume!;
+  if (s.external.tailorResume && form.fields.some((f) => f.role === "resume")) {
+    const current = db.prepare("SELECT pdf_path FROM resumes WHERE job_id = ? AND is_current = 1 AND profile_version = ?").get(job.id, me.version) as { pdf_path: string | null } | undefined;
+    resumePdf = current?.pdf_path ?? (await tailorAndRender(db, brain, me, job, runId));
+  }
+  const { plan, unresolved } = standardFillPlan(form, me.profile, priv, { resume: resumePdf, coverLetter: letterPdf });
   const answers: Prepared["answers"] = [];
   const posting = toPrompt(job);
 

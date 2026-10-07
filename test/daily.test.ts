@@ -27,6 +27,7 @@ const brain = new FakeBrain((req) => {
   }
   if (req.purpose.startsWith("letter:")) return { body: LETTER, claims: [{ text: "tracker", sourceId: "proj-tracker-1" }] };
   if (req.purpose.startsWith("humanize:")) return { text: LETTER, changes: [] };
+  if (req.purpose.startsWith("resume:")) return { skillGroups: [{ label: "Languages", skills: ["Python"] }], experiences: [], changes: ["Python first"] };
   throw new Error(`unexpected ${req.purpose}`);
 });
 setBrain(brain);
@@ -51,6 +52,7 @@ test("daily run: filters, scores, paces, queues, drafts letters, reports", async
   assert.ok(existsSync(letter.pdf_path), "letter PDF rendered");
   assert.equal(db.prepare("SELECT COUNT(*) AS n FROM writings WHERE job_id = 'nuworks:1002'").get()!.n, 0); // optional letter: not written
   assert.equal(db.prepare("SELECT nuworks_count FROM cap_snapshots ORDER BY id DESC").get()!.nuworks_count, 3);
+  assert.equal(db.prepare("SELECT COUNT(*) AS n FROM resumes WHERE is_current = 1 AND pdf_path IS NOT NULL").get()!.n, 2, "a tailored resume for each queued job");
   assert.ok(s.reportHtml && existsSync(s.reportHtml));
 
   // Second run the same day changes nothing and never re-scores.

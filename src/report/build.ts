@@ -62,10 +62,16 @@ export function readHalt(db: Db): HaltInfo | null {
   return h && typeof h === "object" && typeof h.employer === "string" ? h : null;
 }
 
+export function resumeOf(v: unknown): QueueRow["resume"] {
+  const r = parseJson<{ pdf: string | null; changes: string | null; reverted: string | null } | null>(str(v), null);
+  return r ? { pdfPath: r.pdf, changes: asStrings(parseJson(r.changes, [])), reverted: asStrings(parseJson(r.reverted, [])) } : null;
+}
+
 export function queueRows(db: Db): QueueRow[] {
   const rows = db
     .prepare(
-      `SELECT j.*, s.score, s.why, s.gaps, s.red_flags, s.suspected_injection
+      `SELECT j.*, s.score, s.why, s.gaps, s.red_flags, s.suspected_injection,
+         (SELECT json_object('pdf', r.pdf_path, 'changes', r.changes, 'reverted', r.reverted) FROM resumes r WHERE r.job_id = j.id AND r.is_current = 1) AS resume
        FROM jobs j ${LATEST_SCORE_JOIN}
        WHERE j.status = 'queued'
        ORDER BY j.deadline_at IS NULL, j.deadline_at, s.score DESC, j.first_seen_at`,
@@ -89,6 +95,7 @@ export function queueRows(db: Db): QueueRow[] {
     redFlags: asStrings(parseJson(str(r.red_flags), [])),
     suspectedInjection: Number(r.suspected_injection ?? 0) === 1,
     coverLetter: (["required", "optional", "not_accepted"].includes(String(r.cover_letter)) ? r.cover_letter : "unknown") as QueueRow["coverLetter"],
+    resume: resumeOf(r.resume),
   }));
 }
 

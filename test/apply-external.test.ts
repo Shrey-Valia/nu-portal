@@ -57,6 +57,7 @@ const brain = new FakeBrain((req) => {
   if (req.purpose.startsWith("choice:")) return { choice: "Python", confidence: "high", needsHuman: false, reason: "listed skill" };
   if (req.purpose.startsWith("answer:")) return { answer: "I would build a robot that sorts recycling at home.", claims: [], confidence: "high", needsHuman: false, reason: "" };
   if (req.purpose.startsWith("humanize:")) return { text: "I'd build a robot that sorts recycling at home.", changes: [] };
+  if (req.purpose.startsWith("resume:")) return { skillGroups: [{ label: "Languages", skills: ["Python", "TypeScript"] }], experiences: [], changes: ["Put Python first for this role"] };
   throw new Error(`unexpected brain call ${req.purpose}`);
 });
 
@@ -120,6 +121,8 @@ test("supervised live submit after confirmation counts toward graduation", async
   assert.deepEqual([app.result, app.track, app.via], ["submitted", "external", "tool"]);
   assert.equal(JSON.parse(app.screenshots).length, 2);
   assert.equal(getKv(db, "ats.lever.cleanSubmits", 0), 1);
+  const resume = db.prepare("SELECT pdf_path FROM resumes WHERE job_id = 'ext:yes' AND is_current = 1").get() as { pdf_path: string };
+  assert.ok(resume?.pdf_path && existsSync(resume.pdf_path), "a resume tailored to this job was made and uploaded");
   assert.equal(getKv(db, "external.liveUnlocked", false), true);
   assert.equal(posts.length, 1);
 });

@@ -33,6 +33,8 @@ export const SettingsSchema = z.object({
       minScore: z.number().int().min(0).max(100).default(60),
       maxScoresPerDay: z.number().int().positive().default(150),
       coverLetters: z.enum(["required", "whenAccepted"]).default("required"),
+      // A resume reordered and lightly reworded for each queued job (you get each one approved).
+      tailorResume: z.boolean().default(true),
     })
     .prefault({}),
   external: z
@@ -45,6 +47,7 @@ export const SettingsSchema = z.object({
       postedWithinDays: z.number().int().positive().default(21),
       minRelevance: z.number().int().min(0).max(100).default(60),
       coverLetters: z.enum(["required", "whenAccepted"]).default("required"),
+      tailorResume: z.boolean().default(true),
       adapters: z
         .object({
           greenhouse: adapterMode.default("off"),

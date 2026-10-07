@@ -234,7 +234,7 @@ test("approved NUworks jobs are listed with a link, and 'I applied' records them
   const page = (await call("/")).text;
   assert.match(page, /Approved: apply on NUworks/);
   assert.match(page, /Open in NUworks/);
-  assert.match(page, /Resume only/);
+  assert.match(page, /No cover letter/);
   assert.equal((await post("/api/jobs/nuworks%3Aap1/applied", {})).status, 200);
   assert.equal((db.prepare("SELECT status FROM jobs WHERE id = 'nuworks:ap1'").get() as { status: string }).status, "applied_manual");
   assert.equal((db.prepare("SELECT via FROM applications WHERE job_id = 'nuworks:ap1'").get() as { via: string }).via, "manual");

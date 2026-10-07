@@ -28,7 +28,8 @@
     "recon": "node --disable-warning=ExperimentalWarning --import tsx src/cli.ts recon",
     "sources:pull": "node --disable-warning=ExperimentalWarning --import tsx src/cli.ts sources:pull",
     "serve": "node --disable-warning=ExperimentalWarning --import tsx src/cli.ts serve",
-    "report": "node --disable-warning=ExperimentalWarning --import tsx src/cli.ts report"
+    "report": "node --disable-warning=ExperimentalWarning --import tsx src/cli.ts report",
+    "resume": "node --disable-warning=ExperimentalWarning --import tsx src/cli.ts resume"
   },
   "dependencies": {
     "playwright": "^1.48.0",

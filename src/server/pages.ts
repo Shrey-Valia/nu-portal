@@ -176,6 +176,17 @@ function decisionButtons(): SafeHtml {
     <button type="button" class="btn" data-action="defer">Defer <kbd>D</kbd></button>`;
 }
 
+function resumeNote(r: QueueRow["resume"]): SafeHtml {
+  const href = r?.pdfPath ? letterHref(r.pdfPath) : null;
+  if (!r || !href) return html``;
+  return html`<details class="resume-note">
+    <summary>📄 <a href="${href}" target="_blank" rel="noopener">Tailored resume (PDF)</a> <span class="muted">· ${r.changes.length} change${r.changes.length === 1 ? "" : "s"}${r.reverted.length ? ` · ${r.reverted.length} kept as-is` : ""}</span></summary>
+    <ul class="small">${r.changes.map((c) => html`<li>${c}</li>`)}</ul>
+    ${r.reverted.length ? html`<p class="small muted">Kept your original wording where a rewrite didn't pass the checks: ${r.reverted.join("; ")}</p>` : ""}
+    <p class="small muted">Upload it to NUworks Documents and get it approved before applying with it.</p>
+  </details>`;
+}
+
 function queueCard(q: QueueRow, letter: LetterRow | undefined, tz: string, day: string, writesOptional: boolean): SafeHtml {
   const deadline = q.deadlineAt ? html`${formatDateTime(q.deadlineAt, tz)} <span class="muted">(${daysLeftText(daysBetween(day, dayIn(tz, q.deadlineAt)))})</span>` : "Not listed";
   const meta = [q.employer, q.location, q.modality && q.modality !== "unknown" ? q.modality : null].filter(Boolean).join(" · ");
@@ -219,6 +230,7 @@ function queueCard(q: QueueRow, letter: LetterRow | undefined, tz: string, day: 
       </div>
     </details>`
     }
+    ${resumeNote(q.resume)}
     <div class="actions">
       ${decisionButtons()}
       <span class="spacer"></span>
@@ -323,7 +335,8 @@ function approvedList(ctx: Ctx): SafeHtml {
   const rows = ctx.db
     .prepare(
       `SELECT j.id, j.title, j.employer, j.apply_url, j.deadline_at, j.source, j.cover_letter,
-         (SELECT pdf_path FROM writings w WHERE w.job_id = j.id AND w.kind = 'cover_letter' AND w.is_current = 1) AS letter_pdf
+         (SELECT pdf_path FROM writings w WHERE w.job_id = j.id AND w.kind = 'cover_letter' AND w.is_current = 1) AS letter_pdf,
+         (SELECT pdf_path FROM resumes r WHERE r.job_id = j.id AND r.is_current = 1) AS resume_pdf
        FROM jobs j WHERE j.status = 'approved' AND (j.source = 'nuworks' OR j.ats IS NULL OR j.ats NOT IN ('greenhouse', 'lever', 'ashby'))
        ORDER BY j.deadline_at IS NULL, j.deadline_at`,
     )
@@ -335,10 +348,11 @@ function approvedList(ctx: Ctx): SafeHtml {
     <p class="muted small">Open each one, click Apply in NUworks, and attach the documents below. Click “I applied” when done (or the next daily run notices it).</p>
     <ul class="list">${rows.map((r) => {
       const letter = typeof r.letter_pdf === "string" ? letterHref(r.letter_pdf) : null;
+      const resume = typeof r.resume_pdf === "string" ? letterHref(r.resume_pdf) : null;
       return html`<li data-approved-row>
         <div class="grow">
           <a class="role" href="${jobHref(String(r.id))}">${s(r.title)}</a> <span class="muted">· ${s(r.employer)}</span>
-          <div class="small muted">${r.deadline_at ? html`Due ${formatDateTime(String(r.deadline_at), tz)} · ` : ""}${letter ? html`<a href="${letter}" target="_blank" rel="noopener">Cover letter PDF</a>` : r.cover_letter === "not_accepted" ? "Resume only" : r.cover_letter === "required" ? "Cover letter required (drafted on the next daily run)" : "Cover letter optional"}</div>
+          <div class="small muted">${r.deadline_at ? html`Due ${formatDateTime(String(r.deadline_at), tz)} · ` : ""}${resume ? html`<a href="${resume}" target="_blank" rel="noopener">Tailored resume PDF</a> · ` : ""}${letter ? html`<a href="${letter}" target="_blank" rel="noopener">Cover letter PDF</a>` : r.cover_letter === "not_accepted" ? "No cover letter" : r.cover_letter === "required" ? "Cover letter required (drafted on the next daily run)" : "Cover letter optional"}</div>
         </div>
         ${extLink(r.apply_url, "Open in NUworks ↗")}
         <button type="button" class="btn" data-mark-applied="${String(r.id)}">I applied</button>

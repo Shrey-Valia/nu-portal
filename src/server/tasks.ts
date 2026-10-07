@@ -22,7 +22,9 @@ export type TaskKind =
   | "letter-sample"
   | "schedule-install"
   | "schedule-uninstall"
-  | "report";
+  | "report"
+  | "resume-preview"
+  | "resume-tailor";
 
 export interface TaskInput {
   repo?: string;
@@ -81,6 +83,8 @@ const SPECS: Record<TaskKind, Spec> = {
   "schedule-install": { label: "Turn on the daily schedule", args: () => ["schedule", "install"] },
   "schedule-uninstall": { label: "Turn off the daily schedule", args: () => ["schedule", "uninstall"] },
   report: { label: "Rebuild today's report", args: () => ["report"] },
+  "resume-preview": { label: "Preview my resume", args: () => ["resume", "preview"] },
+  "resume-tailor": { label: "Tailor resumes now", args: () => ["resume", "tailor"] },
 };
 
 export const TASK_KINDS = Object.keys(SPECS) as TaskKind[];

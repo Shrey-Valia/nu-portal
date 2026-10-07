@@ -135,7 +135,8 @@ export function setupPage(ctx: Ctx, claude: ClaudeStatus): string {
         ${drafts.length ? html`<p class="flag flag-info">Drafts waiting: ${drafts.join(", ")}.</p>` : ""}`,
       html`${taskBtn("profile-build", hasProfile ? "Rebuild from documents" : "Build from my resume", { cls: resume ? "primary" : "" })}
         ${drafts.length ? html`<a class="btn" href="/drafts">Review drafts</a>` : ""}
-        <a class="btn" href="/profile${drafts.includes("profile.yaml") ? "?from=draft" : ""}">Edit profile</a>`,
+        <a class="btn" href="/profile${drafts.includes("profile.yaml") ? "?from=draft" : ""}">Edit profile</a>
+        ${valid ? taskBtn("resume-preview", "Preview my resume") : ""}`,
     )}
     ${step(
       4,
@@ -418,6 +419,8 @@ export function tasksPage(ctx: Ctx): string {
       ${taskBtn("login", "Sign in to NUworks")}
       ${taskBtn("apply-dry", "Practice run (watch it)", { input: { watch: true } })}
       ${taskBtn("report", "Rebuild report")}
+      ${taskBtn("resume-tailor", "Tailor resumes now")}
+      ${taskBtn("resume-preview", "Preview my resume")}
       ${taskBtn("doctor", "Health check")}
       ${ctx.settings.external.repos.map((r) => taskBtn("sources-pull", `Pull ${r.replace(/^https:\/\/github\.com\//, "")}`, { input: { repo: r } }))}
     </div>

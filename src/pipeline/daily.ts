@@ -16,7 +16,7 @@ import { checkSession } from "../nuworks/session.js";
 import { writeDailyReport } from "../report/write.js";
 import { applyExternal } from "./apply-external.js";
 import { discoverExternal, relevancePending } from "./external.js";
-import { discover, draftLetters, evaluate, expireStale, nuworksBudgetNow, scorePending, selectForQueue, syncApplications } from "./nuworks.js";
+import { discover, draftLetters, draftResumes, evaluate, expireStale, nuworksBudgetNow, scorePending, selectForQueue, syncApplications } from "./nuworks.js";
 
 export interface DailyOptions {
   fixture?: string; // NUworks fixture JSON instead of the live site
@@ -98,6 +98,7 @@ export async function runDaily(opts: DailyOptions = {}): Promise<DailySummary> {
             summary.nuworks.scoring = await ai("Scoring", () => scorePending(db, brain, me!, s, runId));
             summary.nuworks.queue = selectForQueue(db, s, runId, opts.now);
             if (opts.letters !== false) summary.nuworks.letters = await ai("Cover letters", () => draftLetters(db, brain, me!, s, runId));
+            if (opts.letters !== false && s.nuworks.tailorResume) summary.nuworks.resumes = await ai("Tailored resumes", () => draftResumes(db, brain, me!, runId));
           }
         }
       } catch (err) {

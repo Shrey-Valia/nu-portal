@@ -6,6 +6,7 @@ type Command = { default: (args: string[]) => Promise<number | void> };
 const COMMANDS: Record<string, { load: () => Promise<Command>; help: string }> = {
   start: { load: () => import("./commands/start.js"), help: "Open the NU Portal app in your browser (starts it if needed)" },
   app: { load: () => import("./commands/app.js"), help: "Install a clickable NU Portal.app: install | uninstall" },
+  resume: { load: () => import("./commands/resume.js"), help: "Resumes: preview (from your profile) | tailor (for queued jobs)" },
   "profile:build": { load: () => import("./commands/profile-build.js"), help: "Draft your profile from your resume, LinkedIn PDF, and samples" },
   login: { load: () => import("./commands/login.js"), help: "Open Chrome on NUworks so you can sign in (SSO + Duo)" },
   "session:check": { load: () => import("./commands/session-check.js"), help: "Check whether your saved NUworks session still works" },

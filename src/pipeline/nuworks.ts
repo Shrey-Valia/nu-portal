@@ -20,6 +20,7 @@ import type { NuworksAdapter } from "../nuworks/adapter.js";
 import { nuworksJobUrl } from "../nuworks/live-adapter.js";
 import { factsOf, filterContext, getJob, type JobRow, jobsInState, latestScore, upsertJob } from "../jobs/store.js";
 import { writeCoverLetter } from "../writing/compose.js";
+import { renderResume, resumeDir, resumeFileName, tailorResume } from "../resume/tailor.js";
 import { approveRate, calibrationExamples } from "./calibration.js";
 
 // Track A steps. Each is safe to re-run: it only acts on jobs in the state it owns.
@@ -258,4 +259,33 @@ export function expireStale(db: Db, runId: number, maxQueueDays = 7): number {
 
 export function parseDocs(row: JobRow): string[] {
   return parseJson<string[]>(row.required_docs, []);
+}
+
+// A tailored resume for each queued or approved job that doesn't have a current one
+// (or whose one was made from an older version of your profile).
+export async function draftResumes(db: Db, brain: Brain, me: Me, runId: number, source: "nuworks" | "external" = "nuworks"): Promise<{ written: number; reverted: number }> {
+  const jobs = (["queued", "approved"] as const).flatMap((st) => jobsInState(db, st, source));
+  let written = 0;
+  let reverted = 0;
+  for (const job of jobs) {
+    const has = db.prepare("SELECT id FROM resumes WHERE job_id = ? AND is_current = 1 AND profile_version = ?").get(job.id, me.version);
+    if (has) continue;
+    try {
+      await tailorAndRender(db, brain, me, job, runId);
+      written++;
+    } catch (err) {
+      if (err instanceof BrainUnavailableError) throw err;
+      logEvent(db, { runId, jobId: job.id, level: "error", kind: "resume.failed", message: `${job.employer}: ${(err as Error).message}` });
+    }
+  }
+  if (written) logEvent(db, { runId, kind: "resume.tailored", message: `Tailored ${written} resume${written === 1 ? "" : "s"}` });
+  return { written, reverted };
+}
+
+export async function tailorAndRender(db: Db, brain: Brain, me: Me, job: JobRow, runId?: number | null): Promise<string> {
+  const t = await tailorResume({ brain, me, posting: toPrompt(job), db, runId });
+  const pdf = path.join(resumeDir(job.id), resumeFileName(me.profile, job.employer));
+  await renderResume(me.profile, t.content, pdf);
+  db.prepare("UPDATE resumes SET pdf_path = ? WHERE id = ?").run(pdf, t.id);
+  return pdf;
 }
