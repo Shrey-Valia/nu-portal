@@ -292,6 +292,321 @@
     }
   });
 
+
+  // ---------- App screens: forms, uploads, tasks, drafts, live confirmations
+
+  function showIssues(form, err) {
+    const box = form.querySelector("[data-issues]");
+    if (!box) return toast(err.message, "error");
+    box.replaceChildren();
+    for (const issue of err.issues ?? [err.message]) {
+      const li = document.createElement("li");
+      li.textContent = issue;
+      box.append(li);
+    }
+    box.hidden = false;
+    box.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }
+
+  async function post(path, body) {
+    const res = await fetch(path, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-NUPortal-Token": token },
+      body: JSON.stringify(body ?? {}),
+      credentials: "same-origin",
+      cache: "no-store",
+    });
+    let data = {};
+    try {
+      data = await res.json();
+    } catch {
+      /* ignore */
+    }
+    if (!res.ok) {
+      const err = new Error(data.error || `Request failed (${res.status})`);
+      err.issues = data.issues;
+      throw err;
+    }
+    return data;
+  }
+
+  function serialize(form) {
+    const wrap = form.dataset.wrap;
+    const out = {};
+    const inner = {};
+    for (const el of form.elements) {
+      if (!el.name || el.disabled || el.type === "submit" || el.type === "button") continue;
+      const target = wrap && !el.hasAttribute("data-top") ? inner : out;
+      if (el.type === "checkbox") {
+        if (el.hasAttribute("data-multi")) {
+          target[el.name] ??= [];
+          if (el.checked) target[el.name].push(el.value);
+        } else target[el.name] = el.checked;
+      } else if (el.hasAttribute("data-bool")) target[el.name] = el.value === "true";
+      else target[el.name] = el.value;
+    }
+    if (wrap) out[wrap] = inner;
+    return out;
+  }
+
+  document.addEventListener("submit", async (e) => {
+    const form = e.target;
+    if (!(form instanceof HTMLFormElement)) return;
+    if (form.matches("[data-api]")) {
+      e.preventDefault();
+      const button = form.querySelector('[type="submit"]');
+      if (button) button.disabled = true;
+      form.querySelector("[data-issues]")?.setAttribute("hidden", "");
+      try {
+        await post(form.dataset.api, serialize(form));
+        toast("Saved");
+        if (form.dataset.after) setTimeout(() => (location.href = form.dataset.after), 500);
+        else if (form.hasAttribute("data-reload")) setTimeout(() => location.reload(), 500);
+      } catch (err) {
+        showIssues(form, err);
+      } finally {
+        if (button) button.disabled = false;
+      }
+    } else if (form.matches("[data-answers]")) {
+      e.preventDefault();
+      const answers = [...form.querySelectorAll("[data-answer-row]")].map((row) => ({
+        id: row.querySelector('[name="id"]').value,
+        match: row.querySelector('[name="match"]').value,
+        answer: row.querySelector('[name="answer"]').value,
+      }));
+      try {
+        const res = await post("/api/answers", { answers });
+        form.querySelector("[data-issues]")?.setAttribute("hidden", "");
+        toast(`Saved ${res.count} answers`);
+      } catch (err) {
+        showIssues(form, err);
+      }
+    } else if (form.matches("[data-try]")) {
+      e.preventDefault();
+      const input = Object.fromEntries(["employer", "title", "posting", "question"].map((k) => [k, form.elements[k].value]));
+      startTask("letter-sample", input);
+    }
+  });
+
+  // Uploads go up as raw bytes; the server checks they're real PDFs.
+  document.addEventListener("change", async (e) => {
+    const input = e.target;
+    if (!(input instanceof HTMLInputElement) || !input.matches("[data-upload]") || !input.files?.length) return;
+    try {
+      for (const file of input.files) {
+        const res = await fetch(`/api/upload/${input.dataset.upload}?name=${encodeURIComponent(file.name)}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/octet-stream", "X-NUPortal-Token": token },
+          body: file,
+          credentials: "same-origin",
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || `Upload failed (${res.status})`);
+      }
+      toast("Uploaded");
+      setTimeout(() => location.reload(), 600);
+    } catch (err) {
+      toast(err.message, "error");
+    } finally {
+      input.value = "";
+    }
+  });
+
+  let taskTimer;
+  function renderTask(box, t) {
+    box.replaceChildren();
+    const head = document.createElement("div");
+    head.className = "task-head";
+    const title = document.createElement("strong");
+    title.textContent = t.label;
+    const pillEl = document.createElement("span");
+    pillEl.className = `pill pill-${t.status === "ok" ? "ok" : t.status === "failed" ? "bad" : "info"}`;
+    pillEl.textContent = t.status === "running" ? "running…" : t.status === "ok" ? "done" : "failed";
+    head.append(title, pillEl);
+    if (t.pdfHref) {
+      const a = document.createElement("a");
+      a.href = t.pdfHref;
+      a.target = "_blank";
+      a.rel = "noopener";
+      a.className = "btn";
+      a.textContent = "Open PDF";
+      head.append(a);
+    }
+    const pre = document.createElement("pre");
+    pre.className = "task-log";
+    pre.textContent = t.output || (t.status === "running" ? "Starting…" : "(no output)");
+    box.append(head, pre);
+    pre.scrollTop = pre.scrollHeight;
+  }
+
+  function watchTask(id) {
+    const box = document.querySelector("[data-task-log]");
+    if (!box) return void (location.href = "/tasks");
+    box.hidden = false;
+    clearInterval(taskTimer);
+    const tick = async () => {
+      try {
+        const t = await api(`/api/tasks/${encodeURIComponent(id)}`, null, "GET");
+        renderTask(box, t);
+        if (t.status !== "running") clearInterval(taskTimer);
+      } catch (err) {
+        box.textContent = err.message;
+        clearInterval(taskTimer);
+      }
+    };
+    tick();
+    taskTimer = setInterval(tick, 1500);
+    box.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }
+
+  async function startTask(kind, input = {}) {
+    try {
+      const res = await post("/api/tasks", { kind, input });
+      if (kind === "login") toast("A Chrome window is opening. Sign in, wait for your NUworks dashboard, then close it.");
+      else toast(`${res.task.label} started`);
+      const list = document.querySelector(".task-list");
+      if (list) {
+        const li = document.createElement("li");
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "linklike";
+        b.dataset.showTask = res.task.id;
+        b.textContent = res.task.label;
+        const pillEl = document.createElement("span");
+        pillEl.className = "pill pill-info";
+        pillEl.textContent = "started";
+        li.append(b, pillEl);
+        list.prepend(li);
+        list.closest(".panel")?.querySelector(".empty")?.remove();
+      }
+      if (document.querySelector("[data-task-log]")) watchTask(res.task.id);
+      else location.href = "/tasks";
+    } catch (err) {
+      toast(err.message, "error");
+    }
+  }
+
+  document.addEventListener("click", async (e) => {
+    const t = e.target instanceof Element ? e.target : null;
+    if (!t) return;
+    const taskBtn = t.closest("[data-task]");
+    if (taskBtn) {
+      let input = {};
+      try {
+        input = JSON.parse(taskBtn.dataset.taskInput || "{}");
+      } catch {
+        /* ignore */
+      }
+      return void startTask(taskBtn.dataset.task, input);
+    }
+    const show = t.closest("[data-show-task]");
+    if (show) return void watchTask(show.dataset.showTask);
+    const open = t.closest("[data-open]");
+    if (open) {
+      try {
+        await post(`/api/open/${open.dataset.open}`);
+        toast("Terminal opened. Follow the prompts there, then reload this page.");
+      } catch (err) {
+        toast(err.message, "error");
+      }
+      return;
+    }
+    const folder = t.closest("[data-open-folder]");
+    if (folder) return void post("/api/open/folder", { which: folder.dataset.openFolder }).catch((err) => toast(err.message, "error"));
+    const draft = t.closest("[data-draft]");
+    if (draft) {
+      const action = draft.dataset.draftAction;
+      if (action === "discard" && !confirm(`Discard the ${draft.dataset.draft} draft?`)) return;
+      try {
+        await post(`/api/drafts/${encodeURIComponent(draft.dataset.draft)}/${action}`);
+        toast(action === "accept" ? "Saved" : "Discarded");
+        draft.closest("[data-draft-box]")?.remove();
+      } catch (err) {
+        toast(err.message, "error");
+      }
+      return;
+    }
+    if (t.closest("[data-add-row]")) {
+      const tpl = document.querySelector("[data-answer-template]");
+      document.querySelector("[data-answer-rows]")?.append(tpl.content.cloneNode(true));
+      return;
+    }
+    const remove = t.closest("[data-remove-row]");
+    if (remove) return void remove.closest("[data-answer-row]")?.remove();
+  });
+
+  const initialTask = document.querySelector("[data-initial-task]")?.dataset.initialTask;
+  if (initialTask) watchTask(initialTask);
+
+  // Live job-list runs pause before each submit; you decide here with the screenshot in front of you.
+  const confirmBox = document.querySelector("[data-confirm-panel]");
+  if (confirmBox) {
+    let shownId = null;
+    const render = (state) => {
+      const p = state.pending;
+      if (!p) {
+        shownId = null;
+        if (state.running) {
+          confirmBox.hidden = false;
+          confirmBox.replaceChildren();
+          const note = document.createElement("p");
+          note.textContent = "Filling in the next application… watch the Chrome window.";
+          confirmBox.append(note);
+        } else confirmBox.hidden = true;
+        return;
+      }
+      if (shownId === p.id) return;
+      shownId = p.id;
+      confirmBox.hidden = false;
+      confirmBox.replaceChildren();
+      const h = document.createElement("h3");
+      h.textContent = "Ready to submit?";
+      const pre = document.createElement("pre");
+      pre.textContent = p.summary;
+      confirmBox.append(h, pre);
+      if (p.screenshot) {
+        const a = document.createElement("a");
+        a.href = p.screenshot;
+        a.target = "_blank";
+        a.rel = "noopener";
+        const img = document.createElement("img");
+        img.src = p.screenshot;
+        img.alt = "The filled-in application";
+        a.append(img);
+        confirmBox.append(a);
+      }
+      const row = document.createElement("div");
+      row.className = "row";
+      for (const [decision, text, cls] of [["submit", "Submit this application", "btn warn"], ["skip", "Skip", "btn"]]) {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = cls;
+        b.textContent = text;
+        b.addEventListener("click", async () => {
+          row.querySelectorAll("button").forEach((x) => (x.disabled = true));
+          try {
+            await post("/api/apply/confirm", { id: p.id, decision });
+            toast(decision === "submit" ? "Submitting…" : "Skipped");
+          } catch (err) {
+            toast(err.message, "error");
+          }
+        });
+        row.append(b);
+      }
+      confirmBox.append(row);
+      confirmBox.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    };
+    const poll = async () => {
+      try {
+        render(await api("/api/apply/pending", null, "GET"));
+      } catch {
+        /* dashboard restarting */
+      }
+    };
+    poll();
+    setInterval(poll, 2000);
+  }
+
   // Start on the first card so A/S/D work without a click.
   const first = document.querySelector(".queue .card[data-job-id]");
   if (first && document.activeElement === document.body) first.focus({ preventScroll: true });

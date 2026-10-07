@@ -5,7 +5,7 @@ A personal job-search agent for one Northeastern student. Two tracks share one c
 - **Track A, NUworks** (https://nuworks.northeastern.edu/students, Symplicity CSM): capped at 100 applications per co-op cycle; the user's own limit is 20/week. Daily: discover → eligibility filters → AI fit score → pace into a review queue → the user approves on the dashboard → apply.
 - **Track B, job-list repo** (GitHub repos of internship/co-op links): filters → cheap AI relevance pass → auto-apply on Greenhouse/Lever/Ashby once each adapter has passed 3 supervised submissions. Workday/iCIMS/Taleo and any CAPTCHA → "apply manually".
 - Every cover letter and written answer: AI draft → the installed **humanizer** plugin (its SKILL.md is the system prompt) → claim + lint checks → versioned in `writings`.
-- Daily report + localhost dashboard (127.0.0.1:4317) + macOS notification.
+- Daily report + localhost app (127.0.0.1:4317) + macOS notification. The app is the main UI: Setup (uploads, profile builder, editors), Settings, Tasks (allowlisted CLI commands with live logs, `src/server/tasks.ts`), and in-app confirmation of each supervised live submit (`src/pipeline/confirm.ts`). `npm start` / NU Portal.app open it.
 
 ## Stack and commands
 Node 22.13+, TypeScript ESM run with tsx, `node:sqlite` (data/nuportal.db), Playwright on installed Chrome, zod v4, yaml. The AI runs through the user's Claude subscription via headless `claude -p --json-schema … --tools "" --safe-mode` (src/brain/claude-cli.ts); never add an API-key path without asking.

@@ -256,3 +256,70 @@ pre.code { white-space: pre-wrap; overflow-wrap: anywhere; background: var(--sur
   .health { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+/* ---------- App screens: setup, forms, tasks ---------- */
+.banner-info { background: var(--info-soft); color: var(--text); border-bottom: 1px solid var(--info); }
+.banner-info strong { color: var(--info); }
+.wrap > .banner { border-radius: var(--radius); border: 1px solid var(--info); margin-bottom: 16px; }
+.flag-info { background: var(--info-soft); color: var(--info); }
+.flag-ok { background: var(--ok-soft); color: var(--ok); }
+
+.steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.step { display: flex; gap: 14px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; box-shadow: var(--shadow); }
+.step-num { flex: none; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: .9rem; background: var(--accent-soft); color: var(--accent); }
+.step-main { flex: 1; min-width: 0; }
+.step-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 4px; }
+.step-head h2 { margin: 0; }
+.step-body p { color: var(--muted); font-size: .9rem; }
+.step-actions { margin-top: 8px; }
+.files { list-style: none; padding: 0; margin: 4px 0 0; font-size: .88rem; display: grid; gap: 2px; }
+.upload { position: relative; }
+.upload input[type=file] { display: none; }
+
+.form fieldset { border: 0; padding: 0; margin: 0 0 22px; }
+.form legend { font-weight: 700; font-size: 1rem; margin-bottom: 10px; padding: 0; }
+.form h2 { margin-bottom: 4px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px 16px; }
+.field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.field.wide { grid-column: 1 / -1; }
+.field label { font-size: .84rem; font-weight: 600; }
+.field small { font-size: .76rem; }
+.req { color: var(--bad); }
+.form input:not([type=checkbox]):not([type=file]), .form select, .form textarea, .answer-row input {
+  font: inherit; font-size: .9rem; color: var(--text); background: var(--bg); border: 1px solid var(--border-strong);
+  border-radius: 8px; padding: 7px 10px; width: 100%; min-width: 0;
+}
+.form textarea { resize: vertical; line-height: 1.45; }
+.form textarea.code, pre.draft, .task-log { font-family: var(--mono); font-size: .8rem; }
+.form input:focus, .form select:focus, .form textarea:focus, .answer-row input:focus { outline: 2px solid var(--accent); outline-offset: 0; border-color: var(--accent); }
+.check { display: flex; align-items: center; gap: 8px; font-size: .9rem; margin: 6px 0 12px; }
+.issues { background: var(--bad-soft); color: var(--bad); border-radius: 8px; padding: 10px 14px 10px 30px; margin: 0 0 14px; font-size: .86rem; }
+
+.answer-head, .answer-row { display: grid; grid-template-columns: minmax(110px, 1fr) minmax(160px, 2fr) minmax(160px, 2fr) 40px; gap: 8px; align-items: center; }
+.answer-head { font-size: .76rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 6px; }
+.answer-row { margin-bottom: 8px; }
+@media (max-width: 720px) {
+  .answer-head { display: none; }
+  .answer-row { grid-template-columns: 1fr 40px; }
+  .answer-row input[name=answer], .answer-row input[name=match] { grid-column: 1; }
+}
+
+pre.draft { white-space: pre-wrap; background: var(--surface-2); border-radius: 8px; padding: 12px; max-height: 420px; overflow: auto; margin: 0; }
+.tasks-layout { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 16px; align-items: start; margin-top: 16px; }
+@media (max-width: 960px) { .tasks-layout { grid-template-columns: minmax(0, 1fr); } }
+.task-list li { gap: 8px; }
+.linklike { background: none; border: 0; padding: 0; font: inherit; color: var(--accent); cursor: pointer; text-align: left; flex: 1; }
+.row.wrap { flex-wrap: wrap; }
+.wrap > .task-inline { margin-bottom: 16px; }
+.task-inline { display: flex; flex-direction: column; gap: 8px; }
+.task-inline .task-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.task-log { white-space: pre-wrap; word-break: break-word; background: var(--surface-2); border-radius: 8px; padding: 12px; max-height: 520px; overflow: auto; margin: 0; }
+
+.confirm-panel { border: 2px solid var(--warn); border-radius: var(--radius); padding: 12px; margin-top: 12px; background: var(--warn-soft); }
+.confirm-panel h3 { margin-top: 0; }
+.confirm-panel pre { white-space: pre-wrap; font-family: var(--font); font-size: .88rem; margin: 0 0 8px; }
+.confirm-panel img { width: 100%; border-radius: 8px; border: 1px solid var(--border); max-height: 480px; object-fit: contain; object-position: top; background: #fff; }
+/* The offer form's column labels shouldn't apply to app fields, chips, or checkboxes. */
+.form .field label { display: block; }
+.form label.chip { display: inline-flex; flex-direction: row; }
+.form label.check { display: flex; flex-direction: row; align-items: center; gap: 8px; font-weight: 500; }

@@ -1,5 +1,6 @@
-import { existsSync, readFileSync } from "node:fs";
-import { parse } from "yaml";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import path from "node:path";
+import { parse, stringify } from "yaml";
 import { z } from "zod";
 import { SETTINGS_PATH } from "./paths.js";
 
@@ -81,6 +82,15 @@ export function loadSettings(file = SETTINGS_PATH): Settings {
   if (cached && file === SETTINGS_PATH) return cached;
   const raw = existsSync(file) ? parse(readFileSync(file, "utf8")) ?? {} : {};
   const settings = SettingsSchema.parse(raw);
+  if (file === SETTINGS_PATH) cached = settings;
+  return settings;
+}
+
+// Saves settings from the app. Throws a ZodError if anything is out of range.
+export function saveSettings(input: unknown, file = SETTINGS_PATH): Settings {
+  const settings = SettingsSchema.parse(input);
+  mkdirSync(path.dirname(file), { recursive: true });
+  writeFileSync(file, `# NU Portal settings. Edit here or in the app (Settings).\n${stringify(settings)}`);
   if (file === SETTINGS_PATH) cached = settings;
   return settings;
 }

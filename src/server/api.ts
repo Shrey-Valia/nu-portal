@@ -6,6 +6,7 @@ import { canTransition, isJobState, type JobState } from "../core/states.js";
 import { readHalt } from "../report/build.js";
 import { isDay } from "../core/time.js";
 import { type ApplyMode, type ApplyTrack, type Ctx, HttpError, REASON_TAGS } from "./context.js";
+import { handleSetupApi } from "./setup-api.js";
 
 type Body = Record<string, unknown>;
 type Row = Record<string, unknown>;
@@ -133,7 +134,9 @@ function startApply(ctx: Ctx, body: Body): ApiResult {
   if (readHalt(ctx.db)) throw new HttpError(409, "Halted after an accepted offer. Apply runs are off.");
   let liveToken: string | null = null;
   if (mode === "live") {
-    if (getKv<unknown>(ctx.db, `${track}.liveUnlocked`, false) !== true) throw new HttpError(409, `Live ${track} submits are locked. Unlock them from the CLI first.`);
+    // Job-list live runs ask you to confirm each supervised application in the app, so they
+    // need no separate unlock. NUworks stays locked until its apply flow is built.
+    if (track !== "external" && getKv<unknown>(ctx.db, `${track}.liveUnlocked`, false) !== true) throw new HttpError(409, "NUworks applying turns on after NUworks is mapped.");
     // One-time proof for the CLI that a person clicked Live in this dashboard.
     liveToken = randomBytes(32).toString("base64url");
     setKv(ctx.db, "dashboard.liveToken", { token: liveToken, track, at: now() });
@@ -178,6 +181,8 @@ function param(value: string): string {
 }
 
 export function handleApi(ctx: Ctx, method: string, pathname: string, body: Body): ApiResult {
+  const setup = handleSetupApi(ctx, method, pathname, body);
+  if (setup) return setup;
   let m: RegExpMatchArray | null;
   if (method === "GET") {
     if (pathname === "/api/runs/latest") return latestRun(ctx);

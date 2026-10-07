@@ -10,6 +10,9 @@ export interface StructuredRequest<T> {
   tier: Tier;
   timeoutMs?: number;
   runId?: number | null;
+  // Files Claude may open with the Read tool (your resume, LinkedIn PDF, samples).
+  // They're copied into an empty folder and Read is the only tool allowed.
+  readFiles?: string[];
 }
 
 export interface BrainMeta {

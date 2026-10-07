@@ -8,6 +8,9 @@
     "node": ">=22.13"
   },
   "scripts": {
+    "start": "node --disable-warning=ExperimentalWarning --import tsx src/cli.ts start",
+    "app": "node --disable-warning=ExperimentalWarning --import tsx src/cli.ts app",
+    "profile:build": "node --disable-warning=ExperimentalWarning --import tsx src/cli.ts profile:build",
     "nup": "node --disable-warning=ExperimentalWarning --import tsx src/cli.ts",
     "prepare": "git config core.hooksPath .githooks || true",
     "login": "node --disable-warning=ExperimentalWarning --import tsx src/cli.ts login",

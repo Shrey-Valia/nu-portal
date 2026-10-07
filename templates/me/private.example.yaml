@@ -1,0 +1,24 @@
+# me/private.yaml: only used to fill in form fields that ask for these.
+# It is never sent to the AI, never logged, never committed, and Claude Code is
+# blocked from reading it (.claude/settings.json). Fill it in yourself.
+# Do NOT put your SSN, passwords, or government ID numbers here.
+
+dateOfBirth: 2005-01-31          # YYYY-MM-DD
+address:
+  street: 360 Huntington Ave
+  city: Boston
+  state: MA
+  zip: "02115"
+  country: United States
+nuid: ""                          # only if a form asks for it
+
+# Voluntary self-identification questions. Leave as-is to decline.
+eeo:
+  gender: Decline to self-identify
+  race: Decline to self-identify
+  hispanicLatino: Decline to self-identify
+  veteran: Decline to self-identify
+  disability: Decline to self-identify
+
+# Anything else a form might ask for, as "label: value".
+other: {}

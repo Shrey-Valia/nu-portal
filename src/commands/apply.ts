@@ -7,12 +7,14 @@ import { acquireLock } from "../core/lock.js";
 import { getKv, openDb, setKv } from "../db/db.js";
 import { loadMe } from "../me/load.js";
 import { applyExternal, type Mode } from "../pipeline/apply-external.js";
+import { guiConfirm } from "../pipeline/confirm.js";
 
 // npm run apply -- --track external [--mode dry-run|rehearsal|live] [--headed] [--max N] [--job ID ...]
 //
 // Live mode needs one of:
 //   - you, at a real terminal, typing SUBMIT (supervised adapters also ask per application)
-//   - a one-time token from a click on the dashboard's Live button
+//   - a one-time token from a click on the dashboard's Live button (with --confirm gui,
+//     you also confirm each supervised application in the app)
 //   - the launchd schedule (only adapters that already passed 3 supervised submissions)
 export default async function apply(argv: string[]): Promise<number> {
   const { values } = parseArgs({
@@ -24,6 +26,7 @@ export default async function apply(argv: string[]): Promise<number> {
       headed: { type: "boolean" },
       max: { type: "string" },
       job: { type: "string", multiple: true },
+      confirm: { type: "string" }, // "gui": confirm each supervised submit in the app
     },
   });
   const mode = values.mode as Mode;
@@ -50,7 +53,11 @@ export default async function apply(argv: string[]): Promise<number> {
         console.error("Live run refused: missing or expired dashboard token.");
         return 3;
       }
-      unattended = true;
+      if (values.confirm === "gui") {
+        // You confirm each supervised application in the app, watching the browser.
+        confirm = guiConfirm(db);
+        headed = true;
+      } else unattended = true;
     } else if (values.via === "schedule") {
       if (process.env.NUPORTAL_LAUNCHD !== "1") {
         console.error("Live run refused: --via schedule only works from the launchd agent.");

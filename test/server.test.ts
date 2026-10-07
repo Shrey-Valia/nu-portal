@@ -160,7 +160,7 @@ test("API accepts only size-limited JSON objects", async () => {
   assert.equal((await decision("nuworks:2", "decision=approve", { "Content-Type": "application/x-www-form-urlencoded" })).status, 415);
   assert.equal((await decision("nuworks:2", "{not json")).status, 400);
   assert.equal((await decision("nuworks:2", "[1,2]")).status, 400);
-  assert.equal((await decision("nuworks:2", { decision: "approve", note: "x".repeat(70_000) })).status, 413);
+  assert.equal((await decision("nuworks:2", { decision: "approve", note: "x".repeat(300_000) })).status, 413);
   assert.equal(status("nuworks:2"), "queued");
 });
 

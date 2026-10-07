@@ -5,13 +5,16 @@ import http, { type IncomingMessage, type ServerResponse } from "node:http";
 import type { AddressInfo } from "node:net";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { DATA_DIR, REPORTS_DIR, ROOT, SCREENSHOTS_DIR } from "../config/paths.js";
+import { DATA_DIR, LETTERS_DIR, REPORTS_DIR, ROOT, SCREENSHOTS_DIR, SETTINGS_PATH } from "../config/paths.js";
 import { loadSettings, type Settings } from "../config/settings.js";
 import type { Db } from "../db/db.js";
 import { isDay } from "../core/time.js";
 import { handleApi } from "./api.js";
 import { type Ctx, HttpError, type SpawnApply } from "./context.js";
 import { externalPage, historyPage, jobPage, learningPage, notFoundPage, offerPage, todayPage } from "./pages.js";
+import { saveUpload } from "./setup-api.js";
+import { claudeStatus, draftsPage, privatePage, profilePage, settingsPage, setupPage, tasksPage, tryPage, writingPage } from "./setup-pages.js";
+import { type Spawner, TaskRunner } from "./tasks.js";
 
 export const CSP =
   "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'";
@@ -22,8 +25,9 @@ const STATIC_FILES: Record<string, string> = {
   "style.css": "text/css; charset=utf-8",
 };
 const IMAGE_TYPES: Record<string, string> = { ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp" };
-const MAX_BODY = 64 * 1024;
+const MAX_BODY = 256 * 1024;
 const MAX_IMAGE = 25 * 1024 * 1024;
+const MAX_UPLOAD = 15 * 1024 * 1024;
 
 export interface ServerOptions {
   db: Db;
@@ -31,7 +35,9 @@ export interface ServerOptions {
   host?: string;
   token?: string;
   settings?: Settings;
+  settingsFile?: string;
   spawnApply?: SpawnApply;
+  spawner?: Spawner; // how app tasks start processes (tests pass a fake)
 }
 
 export interface RunningServer {
@@ -122,11 +128,32 @@ function readJsonBody(req: IncomingMessage): Promise<Record<string, unknown>> {
   });
 }
 
-async function apiRequest(ctx: Ctx, guard: Guard, req: IncomingMessage, res: ServerResponse, method: string, pathname: string): Promise<void> {
+function readRawBody(req: IncomingMessage): Promise<Buffer> {
+  if (Number(req.headers["content-length"] ?? 0) > MAX_UPLOAD) return Promise.reject(new HttpError(413, "File is too large (15 MB max)"));
+  return new Promise((resolve, reject) => {
+    const chunks: Buffer[] = [];
+    let size = 0;
+    req.on("data", (chunk: Buffer) => {
+      size += chunk.length;
+      if (size <= MAX_UPLOAD) chunks.push(chunk);
+    });
+    req.on("error", reject);
+    req.on("end", () => (size > MAX_UPLOAD ? reject(new HttpError(413, "File is too large (15 MB max)")) : resolve(Buffer.concat(chunks))));
+  });
+}
+
+async function apiRequest(ctx: Ctx, guard: Guard, req: IncomingMessage, res: ServerResponse, method: string, pathname: string, search: URLSearchParams): Promise<void> {
   const given = req.headers["x-nuportal-token"];
   if (typeof given !== "string" || !tokenMatches(given, ctx.token)) return sendJson(res, 403, { error: "Missing or wrong dashboard token" });
   const origin = req.headers.origin;
   if (origin !== undefined && !guard.origins.has(origin)) return sendJson(res, 403, { error: "Cross-origin request refused" });
+  const upload = method === "POST" ? pathname.match(/^\/api\/upload\/([a-z]+)$/) : null;
+  if (upload) {
+    const type = (req.headers["content-type"] ?? "").split(";")[0].trim().toLowerCase();
+    if (type !== "application/octet-stream") throw new HttpError(415, "Upload files as application/octet-stream");
+    const result = saveUpload(ctx, upload[1], search.get("name"), await readRawBody(req));
+    return sendJson(res, result.status, result.body);
+  }
   const body = method === "POST" ? await readJsonBody(req) : {};
   const result = handleApi(ctx, method, pathname, body);
   sendJson(res, result.status, result.body);
@@ -170,6 +197,23 @@ function serveScreenshot(res: ServerResponse, rest: string): void {
   send(res, 200, type, readFileSync(real));
 }
 
+// Letter PDFs that really live under LETTERS_DIR (same checks as screenshots).
+function serveLetter(res: ServerResponse, rest: string): void {
+  const rel = decodeParam(rest);
+  if (!rel || rel.includes("\0")) return sendText(res, 404, "Not found");
+  const base = path.resolve(LETTERS_DIR);
+  const file = path.resolve(base, rel);
+  if (!file.startsWith(base + path.sep) || path.extname(file).toLowerCase() !== ".pdf") return sendText(res, 404, "Not found");
+  try {
+    const real = realpathSync(file);
+    if (!real.startsWith(realpathSync(base) + path.sep) || !statSync(real).isFile()) return sendText(res, 404, "Not found");
+    res.setHeader("Content-Disposition", "inline");
+    send(res, 200, "application/pdf", readFileSync(real));
+  } catch {
+    sendText(res, 404, "Not found");
+  }
+}
+
 // Saved reports carry one inline <style>; allow exactly that by hash and nothing else.
 function serveReport(res: ServerResponse, rawDay: string): void {
   const day = decodeParam(rawDay);
@@ -194,13 +238,16 @@ async function handle(ctx: Ctx, guard: Guard, req: IncomingMessage, res: ServerR
   if (!guard.hosts.has(req.headers.host ?? "")) return sendText(res, 403, "Forbidden: unexpected Host header");
   const method = req.method ?? "GET";
   let pathname: string;
+  let search: URLSearchParams;
   try {
-    pathname = new URL(req.url ?? "/", "http://127.0.0.1").pathname;
+    const url = new URL(req.url ?? "/", "http://127.0.0.1");
+    pathname = url.pathname;
+    search = url.searchParams;
   } catch {
     return sendText(res, 400, "Bad request");
   }
 
-  if (pathname.startsWith("/api/")) return apiRequest(ctx, guard, req, res, method, pathname);
+  if (pathname.startsWith("/api/")) return apiRequest(ctx, guard, req, res, method, pathname, search);
   if (method !== "GET" && method !== "HEAD") {
     res.setHeader("Allow", "GET, HEAD");
     return sendText(res, 405, "Method not allowed");
@@ -212,6 +259,15 @@ async function handle(ctx: Ctx, guard: Guard, req: IncomingMessage, res: ServerR
   if (pathname === "/external") return sendHtml(res, 200, externalPage(ctx));
   if (pathname === "/learning") return sendHtml(res, 200, learningPage(ctx));
   if (pathname === "/offer") return sendHtml(res, 200, offerPage(ctx));
+  if (pathname === "/setup") return sendHtml(res, 200, setupPage(ctx, await claudeStatus(ctx.settings)));
+  if (pathname === "/profile") return sendHtml(res, 200, profilePage(ctx, search.get("from") === "draft"));
+  if (pathname === "/private") return sendHtml(res, 200, privatePage(ctx));
+  if (pathname === "/writing") return sendHtml(res, 200, writingPage(ctx));
+  if (pathname === "/drafts") return sendHtml(res, 200, draftsPage(ctx));
+  if (pathname === "/settings") return sendHtml(res, 200, settingsPage(ctx));
+  if (pathname === "/tasks") return sendHtml(res, 200, tasksPage(ctx));
+  if (pathname === "/try") return sendHtml(res, 200, tryPage(ctx));
+  if (pathname.startsWith("/letters/")) return serveLetter(res, pathname.slice("/letters/".length));
   if ((m = pathname.match(/^\/jobs\/([^/]+)$/))) {
     const id = decodeParam(m[1]);
     const page = id ? jobPage(ctx, id) : null;
@@ -227,13 +283,22 @@ export async function startServer(opts: ServerOptions): Promise<RunningServer> {
   const host = opts.host ?? "127.0.0.1";
   if (host !== "127.0.0.1" && host !== "localhost") throw new Error(`The dashboard only binds to 127.0.0.1 (got "${host}")`);
   const token = opts.token ?? randomBytes(32).toString("base64url");
-  const ctx: Ctx = {
+  const ctx = {
     db: opts.db,
     settings: opts.settings ?? loadSettings(),
+    settingsFile: opts.settingsFile ?? SETTINGS_PATH,
     token,
     port: opts.port,
-    spawnApply: opts.spawnApply ?? spawnApplyCli,
-  };
+  } as Ctx;
+  ctx.tasks = new TaskRunner(() => ctx.settings, opts.spawner);
+  // Job-list runs go through the task runner (live ones confirm each application in the app).
+  ctx.spawnApply =
+    opts.spawnApply ??
+    ((r) => {
+      if (r.track !== "external") return spawnApplyCli(r);
+      const t = ctx.tasks.start(r.mode === "live" ? "apply-live" : "apply-dry", { liveToken: r.liveToken ?? undefined, watch: true });
+      return { pid: t.pid, log: t.log };
+    });
   const guard: Guard = { hosts: new Set(), origins: new Set() };
 
   const server = http.createServer((req, res) => {

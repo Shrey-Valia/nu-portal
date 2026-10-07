@@ -1,5 +1,5 @@
 import { spawn } from "node:child_process";
-import { mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { copyFileSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { z } from "zod";
 import { BRAIN_SANDBOX_DIR } from "../config/paths.js";
@@ -22,6 +22,10 @@ interface CliEnvelope {
   duration_ms?: number;
   api_error_status?: number | null;
 }
+
+// Claude Code can add details about the account running it (e.g. its email).
+// That person is not necessarily the student, so keep it out of the work.
+const ACCOUNT_RULE = "Any information about the Claude account or session running this request is not about the student. Ignore it; use only what this prompt and the student's own files say.";
 
 const UNAVAILABLE = /(not logged in|failed to authenticate|oauth|usage limit|rate limit|limit reached|quota|overloaded|credit balance)/i;
 
@@ -87,13 +91,20 @@ export class ClaudeCliBrain implements Brain {
     mkdirSync(BRAIN_SANDBOX_DIR, { recursive: true });
     // System prompts can be long (the humanizer's is ~25 KB); pass them as a file, not argv.
     const sysFile = path.join(BRAIN_SANDBOX_DIR, `system-${process.pid}-${shortHash(req.purpose + Math.random())}.md`);
-    writeFileSync(sysFile, req.system);
+    writeFileSync(sysFile, `${req.system}\n\n${ACCOUNT_RULE}`);
     const effort = req.tier === "score" ? this.settings.scoreEffort : this.settings.writeEffort;
+    // With readFiles, Claude gets Read and nothing else, inside a folder holding only copies of those files.
+    const workDir = req.readFiles?.length ? path.join(BRAIN_SANDBOX_DIR, `files-${process.pid}-${shortHash(sysFile)}`) : BRAIN_SANDBOX_DIR;
+    if (req.readFiles?.length) {
+      mkdirSync(workDir, { recursive: true });
+      for (const f of req.readFiles) copyFileSync(f, path.join(workDir, path.basename(f)));
+    }
+    const tools = req.readFiles?.length ? ["--tools", "Read", "--allowedTools", "Read"] : ["--tools", ""];
     const args = [
       "-p",
       "--output-format", "json",
       "--json-schema", schemaJson,
-      "--tools", "",
+      ...tools,
       "--safe-mode",
       "--no-session-persistence",
       "--system-prompt-file", sysFile,
@@ -101,7 +112,7 @@ export class ClaudeCliBrain implements Brain {
       "--effort", effort,
     ];
     try {
-      const { stdout, stderr, code } = await exec(bin, args, prompt, req.timeoutMs ?? this.settings.timeoutMs);
+      const { stdout, stderr, code } = await exec(bin, args, prompt, req.timeoutMs ?? this.settings.timeoutMs, workDir);
       let env: CliEnvelope;
       try {
         env = JSON.parse(stdout) as CliEnvelope;
@@ -118,6 +129,7 @@ export class ClaudeCliBrain implements Brain {
       return env;
     } finally {
       rmSync(sysFile, { force: true });
+      if (workDir !== BRAIN_SANDBOX_DIR) rmSync(workDir, { recursive: true, force: true });
     }
   }
 
@@ -156,10 +168,10 @@ export function extract(env: CliEnvelope): unknown {
   }
 }
 
-function exec(bin: string, args: string[], stdin: string, timeoutMs: number): Promise<{ stdout: string; stderr: string; code: number | null }> {
+function exec(bin: string, args: string[], stdin: string, timeoutMs: number, cwd = BRAIN_SANDBOX_DIR): Promise<{ stdout: string; stderr: string; code: number | null }> {
   return new Promise((resolve, reject) => {
     const child = spawn(bin, args, {
-      cwd: BRAIN_SANDBOX_DIR,
+      cwd,
       env: { ...process.env, DISABLE_AUTOUPDATER: "1" },
       stdio: ["pipe", "pipe", "pipe"],
     });

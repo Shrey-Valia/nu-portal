@@ -1,0 +1,72 @@
+# me/profile.yaml: what NU Portal knows about you. /interview drafts this from
+# your resume and LinkedIn PDF; edit it any time. Ids are lowercase-with-dashes
+# and let cover-letter claims point back to where they came from.
+# Everything here may be sent to Claude except email and phone.
+
+identity:
+  name: Jane Husky
+  preferredName: Jane
+  email: husky.j@northeastern.edu      # used to fill in forms, never sent to the AI
+  phone: "+1 617 555 0100"             # same
+  city: Boston, MA
+  links:
+    linkedin: https://www.linkedin.com/in/janehusky
+    github: https://github.com/janehusky
+
+education:
+  school: Northeastern University
+  college: Khoury College of Computer Sciences
+  degree: BS
+  majors: [Computer Science]
+  minors: []
+  gradDate: May 2028
+  level: middler
+  gpa: 3.7
+  shareGpa: true
+  coopCycle: Spring 2027
+  coopNumber: 1
+  coursework: [Object-Oriented Design, Algorithms and Data, Database Design]
+
+workAuth:
+  authorizedUS: true
+  needsSponsorship: false
+  usCitizen: true            # optional; only used to skip postings that require citizenship
+  clearanceEligible: true    # optional
+
+targets:
+  roles: [Software Engineer Co-op, Backend Engineer Co-op, Data Engineer Co-op]
+  domains: [fintech, developer tools, healthcare]
+  locations: [Boston, MA, New York, NY, Remote]
+  modalities: [onsite, hybrid, remote]
+  willingToRelocate: true
+  minHourly: 25
+  companiesLove: []
+  companiesAvoid: []
+  keywordsAvoid: [unpaid, commission-only]
+  dealbreakers: [unpaid roles]
+
+skills:
+  - id: python
+    name: Python
+    level: strong
+    evidence: [proj-tracker]
+  - id: typescript
+    name: TypeScript
+    level: working
+    evidence: [proj-tracker]
+
+experiences:
+  - id: proj-tracker
+    kind: project
+    title: Co-op Application Tracker
+    org: Personal project
+    start: 2026-06
+    tech: [TypeScript, Playwright, SQLite]
+    bullets:
+      - id: proj-tracker-1
+        text: Built a TypeScript tool that tracks co-op applications and drafts cover letters.
+
+awards: []
+extras:
+  - id: lang-spanish
+    text: Conversational Spanish

@@ -54,7 +54,7 @@ export default async function doctor(argv: string[]): Promise<number> {
     add("Database", "ok", `data/nuportal.db (schema v${v})`);
     const session = getKv<{ status: string; checkedAt: string } | null>(db, "session", null);
     if (!values.session) {
-      add("NUworks session (last check)", session ? (session.status.endsWith("ok") ? "ok" : "warn") : "warn", session ? `${session.status} at ${session.checkedAt}` : "never checked; run npm run login, then npm run session:check");
+      add("NUworks session (last check)", session ? (session.status.endsWith("ok") ? "ok" : "warn") : "warn", session ? `${session.status} at ${session.checkedAt}` : "never checked; app: Setup → Sign in to NUworks (or npm run login)");
     }
   } catch (err) {
     add("Database", "fail", (err as Error).message);
@@ -68,7 +68,7 @@ export default async function doctor(argv: string[]): Promise<number> {
   } catch (err) {
     add("Profile (me/profile.yaml)", err instanceof MeMissingError ? "warn" : "fail", (err as Error).message.split("\n")[0]);
   }
-  add("Private details (me/private.yaml)", existsSync(path.join(ME_DIR, "private.yaml")) ? "ok" : "warn", existsSync(path.join(ME_DIR, "private.yaml")) ? "found (contents never checked or shown)" : "missing; copy templates/me/private.example.yaml");
+  add("Private details (me/private.yaml)", existsSync(path.join(ME_DIR, "private.yaml")) ? "ok" : "warn", existsSync(path.join(ME_DIR, "private.yaml")) ? "found (contents never checked or shown)" : "missing; app: Setup → Private details");
 
   const claude = await which(loadSettings().brain.claudeBin);
   if (!claude) {
@@ -77,7 +77,7 @@ export default async function doctor(argv: string[]): Promise<number> {
     try {
       const { stdout } = await execFileAsync(claude, ["auth", "status"], { timeout: 20_000 });
       const status = JSON.parse(stdout) as { loggedIn?: boolean; authMethod?: string };
-      add("Claude CLI", status.loggedIn ? "ok" : "fail", status.loggedIn ? `${claude} (${status.authMethod})` : "not logged in; run: claude auth login");
+      add("Claude CLI", status.loggedIn ? "ok" : "fail", status.loggedIn ? `${claude} (${status.authMethod})` : "not signed in; app: Setup → Sign in to Claude (or claude auth login)");
     } catch (err) {
       add("Claude CLI", "fail", (err as Error).message.split("\n")[0]);
     }

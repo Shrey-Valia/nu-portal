@@ -1,6 +1,6 @@
 import { existsSync, readdirSync } from "node:fs";
 import path from "node:path";
-import { REPORTS_DIR, SCREENSHOTS_DIR } from "../config/paths.js";
+import { LETTERS_DIR, ME_DIR, REPORTS_DIR, SCREENSHOTS_DIR } from "../config/paths.js";
 import { type Db, getKv, parseJson } from "../db/db.js";
 import { asStrings, buildDailyReport, readHalt, trackOf } from "../report/build.js";
 import { daysLeftText, label, NEEDS_YOU_LABEL, pill, scoreBadge, sessionView, trackPill, usd } from "../report/present.js";
@@ -14,8 +14,11 @@ type Row = Record<string, unknown>;
 
 const NAV: Array<[string, string]> = [
   ["/", "Today"],
+  ["/setup", "Setup"],
+  ["/tasks", "Tasks"],
   ["/history", "History"],
   ["/external", "External"],
+  ["/settings", "Settings"],
   ["/learning", "Learning"],
   ["/offer", "Offer"],
 ];
@@ -26,6 +29,14 @@ export function jobHref(id: string): string {
   return `/jobs/${encodeURIComponent(id)}`;
 }
 
+// Maps a letter PDF path to its dashboard URL, or null if it lives outside LETTERS_DIR.
+export function letterHref(p: string): string | null {
+  const base = path.resolve(LETTERS_DIR);
+  const abs = path.resolve(base, p);
+  if (!abs.startsWith(base + path.sep) || !abs.endsWith(".pdf")) return null;
+  return `/letters/${path.relative(base, abs).split(path.sep).map(encodeURIComponent).join("/")}`;
+}
+
 // Maps a stored screenshot path to its dashboard URL, or null if it lives outside SCREENSHOTS_DIR.
 export function screenshotHref(p: string): string | null {
   const base = path.resolve(SCREENSHOTS_DIR);
@@ -34,7 +45,7 @@ export function screenshotHref(p: string): string | null {
   return `/screenshots/${path.relative(base, abs).split(path.sep).map(encodeURIComponent).join("/")}`;
 }
 
-function extLink(url: unknown, text: string): SafeHtml {
+export function extLink(url: unknown, text: string): SafeHtml {
   const href = safeUrl(typeof url === "string" ? url : null);
   return href ? html`<a href="${href}" target="_blank" rel="noopener noreferrer">${text}</a>` : html``;
 }
@@ -46,7 +57,7 @@ function haltBanner(halt: HaltInfo): SafeHtml {
   </div>`;
 }
 
-function layout(ctx: Ctx, opts: { title: string; active?: string; body: SafeHtml }): string {
+export function layout(ctx: Ctx, opts: { title: string; active?: string; body: SafeHtml }): string {
   const halt = readHalt(ctx.db);
   const page = html`<html lang="en">
 <head>
@@ -77,7 +88,7 @@ ${halt ? haltBanner(halt) : ""}
   return `<!doctype html>\n${page.value}\n`;
 }
 
-function empty(text: string): SafeHtml {
+export function empty(text: string): SafeHtml {
   return html`<p class="empty">${text}</p>`;
 }
 
@@ -230,16 +241,24 @@ function applyPanel(ctx: Ctx, halted: boolean): SafeHtml {
     <h2 id="apply-h">Submit approved</h2>
     ${halted ? html`<p class="flag flag-bad">Halted. Apply runs are off.</p>` : ""}
     ${tracks.map(([t, name]) => {
-      const unlocked = getKv<unknown>(ctx.db, `${t}.liveUnlocked`, false) === true;
+      // Job-list live runs ask you to confirm each supervised application right here.
+      const unlocked = t === "external" || getKv<unknown>(ctx.db, `${t}.liveUnlocked`, false) === true;
+      const note =
+        t === "external"
+          ? "Live opens Chrome and fills each form. Before anything is sent you see a screenshot here and click Submit or Skip."
+          : unlocked
+            ? "Live submits for real, within your limits."
+            : "NUworks applying turns on after NUworks is mapped (Phase 2). Approve here, apply by hand for now.";
       return html`<div class="apply-track">
         <div class="apply-head"><strong>${name}</strong><span class="muted">${approved[t]} approved</span></div>
         <div class="row">
-          <button type="button" class="btn" data-apply-track="${t}" data-apply-mode="dry-run"${halted ? raw(" disabled") : ""}>Dry run</button>
-          <button type="button" class="btn warn" data-apply-track="${t}" data-apply-mode="live"${halted || !unlocked ? raw(" disabled") : ""}>Live</button>
+          <button type="button" class="btn" data-apply-track="${t}" data-apply-mode="dry-run"${halted ? raw(" disabled") : ""}>Practice run</button>
+          <button type="button" class="btn warn" data-apply-track="${t}" data-apply-mode="live"${halted || !unlocked ? raw(" disabled") : ""}>Apply for real</button>
         </div>
-        <p class="muted small">${unlocked ? "Live submits for real, within your limits." : "Live is locked until you unlock it from the CLI."}</p>
+        <p class="muted small">${note}</p>
       </div>`;
     })}
+    <div class="confirm-panel" data-confirm-panel hidden></div>
     <div class="run-status" data-run-status hidden></div>
   </section>`;
 }
@@ -300,10 +319,12 @@ export function todayPage(ctx: Ctx): string {
   const day = dayIn(tz);
   const r = buildDailyReport(ctx.db, day, ctx.settings);
   const letters = currentLetters(ctx.db, r.queue.map((q) => q.jobId));
+  const needsSetup = !existsSync(path.join(ME_DIR, "profile.yaml"));
   const body = html`
   <div class="page-head">
     <h1>${formatLongDay(day)}</h1>
   </div>
+  ${needsSetup ? html`<div class="banner banner-info" role="note"><strong>Welcome!</strong> NU Portal doesn't know you yet. <a href="/setup">Start setup</a> to upload your resume and build your profile.</div>` : ""}
   ${healthBar(r)}
   <div class="today">
     <section class="queue" aria-labelledby="queue-h">

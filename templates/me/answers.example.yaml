@@ -1,0 +1,25 @@
+# me/answers.yaml: your answers to questions that show up on many applications.
+# "match" lists words that identify the question. These are used word for word,
+# before the AI is asked anything.
+
+- id: sponsorship
+  match: [sponsorship, visa sponsorship, require sponsorship]
+  answer: "No"
+- id: authorized
+  match: [legally authorized, authorized to work]
+  answer: "Yes"
+- id: start-date
+  match: [start date, available to start, earliest start]
+  answer: January 2027
+- id: duration
+  match: [duration, how long, co-op length, end date]
+  answer: "6 months: January to June 2027 (Northeastern co-op)"
+- id: relocation
+  match: [relocate, relocation]
+  answer: "Yes"
+- id: hear-about
+  match: [how did you hear, where did you hear, referral source]
+  answer: Northeastern NUworks
+- id: in-person
+  match: [in person, on-site, onsite, hybrid schedule, commute]
+  answer: "Yes"

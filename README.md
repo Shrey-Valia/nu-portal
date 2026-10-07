@@ -52,26 +52,39 @@ A Mac notification tells you when the run is done.
 
 ## Setup
 
-You need macOS, Node.js 22.13+, Google Chrome, and Claude Code logged in to your Claude subscription.
+You need macOS, Node.js 22.13+, Google Chrome, and Claude Code (your Claude subscription).
 
 ```bash
 git clone https://github.com/Shrey-Valia/nu-portal.git && cd nu-portal
-npm install                      # also turns on the privacy pre-commit hook
-claude auth login                # the daily script uses your subscription
-npm run doctor                   # checks everything below as you go
+npm install                 # also turns on the privacy pre-commit hook
+npm run app -- install      # adds "NU Portal" to ~/Applications (Launchpad, Spotlight, Dock)
 ```
 
-1. **Tell it about you.** Put `resume.pdf` in `me/`, plus `linkedin.pdf` (LinkedIn → More → Save to PDF) and any past cover letters in `me/samples/`. Then open Claude Code in this folder and run `/interview`. Copy `templates/me/private.example.yaml` to `me/private.yaml` and fill it in yourself.
-2. **Check it knows you.** Run `npm run profile:check`, then try `npm run letter:sample -- --file posting.txt --employer "Acme" --title "Software Engineer Co-op"`.
-3. **Sign in to NUworks.** Run `npm run login`, then `npm run session:check`.
-4. **Settings.** Copy `config/settings.example.yaml` to `config/settings.yaml`. Set your cycle, the weekly limit, and your job-list repos under `external.repos`.
-5. **Try it on test data.** Run `npm run daily -- --fixture test/fixtures/synthetic/nuworks/postings.json --no-external`, then `npm run serve`.
-6. **Schedule it.** `npm run schedule -- install` runs the daily job at 8:30 on weekdays (on wake if the Mac was asleep) and keeps the dashboard running.
+Open **NU Portal** (or run `npm start`) and follow the **Setup** page. Everything is point-and-click:
+
+1. **Connect Claude:** one button opens the sign-in.
+2. **Add your documents:** upload your resume PDF, LinkedIn PDF (LinkedIn → More → Save to PDF), and any past cover letters.
+3. **Build your profile:** Claude drafts it from your documents. You review every field and fill in work authorization, co-op details, and what you want.
+4. **Private details:** birthday, address, and voluntary self-ID, only for forms that ask. Never sent to the AI.
+5. **Answers, stories, voice:** your answers to common questions and how you like to sound.
+6. **Try a letter:** paste a posting to see the draft, the humanized version, the checks, and the PDF.
+7. **Sign in to NUworks:** a Chrome window opens for Northeastern SSO + Duo.
+8. **Job-list repo:** paste a GitHub job list in Settings.
+9. **Run it every morning:** one button turns on the 8:30 weekday schedule.
+
+Then use **Today** each morning: approve or skip matches, and click **Apply for real**. For job-list applications, Chrome fills each form while you watch, and nothing is sent until you look at the screenshot and click **Submit**.
+
+The app is a local web page served from your Mac (http://127.0.0.1:4317). Only this computer can reach it.
 
 ## Commands
 
+Everything below is also available from the app; the commands are there if you prefer a terminal.
+
 | Command | What it does |
 | --- | --- |
+| `npm start` | Open the app (starts it if needed) |
+| `npm run app -- install` | Install the NU Portal app icon (`uninstall` removes it) |
+| `npm run profile:build` | Draft your profile from your resume, LinkedIn PDF, and samples |
 | `npm run doctor` | Checks setup. `-- --brain` also tests Claude, `-- --session` tests NUworks, `-- --launchd` runs the checks from inside launchd |
 | `npm run login` / `session:check` | Sign in to NUworks / check the saved session |
 | `npm run profile:check` | What NU Portal knows about you, and what's missing |
