@@ -81,7 +81,7 @@ export async function runDaily(opts: DailyOptions = {}): Promise<DailySummary> {
       try {
         if (opts.fixture) adapter = new FixtureAdapter(opts.fixture);
         else {
-          const handle = await openBrowser({ headless: true, readOnly: true });
+          const handle = await openBrowser({ headless: true, readOnly: true, purpose: "the daily run" });
           const session = await checkSession(db, handle);
           if (session.status === "ok" || session.status === "sso_silent_ok") adapter = new LiveAdapter(handle);
           else {

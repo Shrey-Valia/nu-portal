@@ -9,7 +9,7 @@ import { openBrowser } from "../nuworks/browser.js";
 
 export default async function login(): Promise<number> {
   const db = openDb();
-  const handle = await openBrowser({ headless: false });
+  const handle = await openBrowser({ headless: false, purpose: "the NUworks sign-in window" });
   await handle.page.goto(NUWORKS_URL);
 
   console.log(

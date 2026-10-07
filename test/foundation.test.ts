@@ -114,3 +114,9 @@ test("stories parser splits on headings", () => {
     ["b", "Second", "body b"],
   ]);
 });
+
+test("a busy browser lock says what is holding it", () => {
+  const release = acquireLock("purpose-lock", "the NUworks sign-in window");
+  assert.throws(() => acquireLock("purpose-lock"), /The NUworks sign-in window is using the browser .* close that Chrome window/);
+  release();
+});

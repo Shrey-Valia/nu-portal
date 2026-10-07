@@ -10,6 +10,8 @@ export interface OpenBrowserOptions {
   readOnly?: boolean;
   // Paths of read-only POST endpoints found during recon (e.g. a search API).
   allowPost?: RegExp[];
+  // What's using the browser, shown to anything blocked behind it.
+  purpose?: string;
 }
 
 export interface BrowserHandle {
@@ -20,7 +22,7 @@ export interface BrowserHandle {
 }
 
 export async function openBrowser(opts: OpenBrowserOptions = {}): Promise<BrowserHandle> {
-  const release = acquireLock("browser");
+  const release = acquireLock("browser", opts.purpose ?? (opts.headless === false ? "an NU Portal Chrome window" : "an NUworks check"));
   try {
     mkdirSync(BROWSER_PROFILE_DIR, { recursive: true });
     const headless = opts.headless ?? true;

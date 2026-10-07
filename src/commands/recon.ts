@@ -12,7 +12,7 @@ export const CDP_PORT = 9222;
 // data/recon/ (gitignored; it contains your session). You do every click that
 // could change something; MCP clicks ask for your approval first.
 export default async function recon(): Promise<number> {
-  const release = acquireLock("browser");
+  const release = acquireLock("browser", "the NUworks recon window");
   const dir = path.join(DATA_DIR, "recon");
   mkdirSync(dir, { recursive: true });
   const har = path.join(dir, `nuworks-${new Date().toISOString().replace(/[:.]/g, "-")}.har`);
