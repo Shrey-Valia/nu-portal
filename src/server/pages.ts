@@ -736,6 +736,7 @@ export function offerPage(ctx: Ctx): string {
     <section class="panel">
       <h2>Checklist</h2>
       <ul class="checklist">
+        <li><label><input type="checkbox"> Record and accept the offer in NUworks (Student Utilities → My Co-op Job Search → Record an Offer). Required for Spring 2027 co-ops.</label></li>
         <li><label><input type="checkbox"> Tell your co-op coordinator you accepted ${halt.employer}.</label></li>
         <li><label><input type="checkbox"> Withdraw your other NUworks applications.</label></li>
         <li><label><input type="checkbox"> Reply to the other employers below, interviews and offers first.</label></li>

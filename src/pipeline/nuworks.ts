@@ -51,17 +51,23 @@ export async function syncApplications(db: Db, adapter: NuworksAdapter, s: Setti
   return { count: snap.capCount ?? snap.rows.length, offers };
 }
 
-export async function discover(db: Db, adapter: NuworksAdapter, runId: number): Promise<{ seen: number; fetched: number; new: number }> {
+export async function discover(db: Db, adapter: NuworksAdapter, runId: number, maxDetails = Number.POSITIVE_INFINITY): Promise<{ seen: number; fetched: number; new: number; deferred: number }> {
   const summaries = await adapter.search();
   let fetched = 0;
   let fresh = 0;
+  let deferred = 0;
   for (const sum of summaries) {
     const id = `nuworks:${sum.id}`;
     const known = getJob(db, id);
-    const same = known && known.title === sum.title && known.deadline_at === sum.deadlineAt;
+    // Listings give dates without times; compare by date so unchanged postings aren't re-fetched.
+    const same = known && known.title === sum.title && (known.deadline_at ?? "").slice(0, 10) === (sum.deadlineAt ?? "").slice(0, 10);
     if (same) {
       db.prepare("UPDATE jobs SET last_seen_at = ? WHERE id = ?").run(now(), id);
       continue;
+    }
+    if (fetched >= maxDetails) {
+      deferred++;
+      continue; // the rest wait for the next run
     }
     const p = await adapter.detail(sum.id);
     fetched++;
@@ -77,8 +83,8 @@ export async function discover(db: Db, adapter: NuworksAdapter, runId: number): 
     );
     if (r.isNew) fresh++;
   }
-  logEvent(db, { runId, kind: "nuworks.discover", message: `${summaries.length} postings in search, ${fresh} new, ${fetched} details fetched` });
-  return { seen: summaries.length, fetched, new: fresh };
+  logEvent(db, { runId, kind: "nuworks.discover", message: `${summaries.length} postings in search, ${fresh} new, ${fetched} details fetched${deferred ? `, ${deferred} more tomorrow` : ""}` });
+  return { seen: summaries.length, fetched, new: fresh, deferred };
 }
 
 export function evaluate(db: Db, me: Me, s: Settings, track: "nuworks" | "external", runId: number): { passed: number; filtered: number } {

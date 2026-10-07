@@ -33,9 +33,10 @@ export default async function offer(argv: string[]): Promise<number> {
     return 0;
   }
   console.log(`Offer accepted at ${info.employer} on ${info.date}.\n\nNext steps (Northeastern co-op handbook):`);
-  console.log("  1. Tell your co-op coordinator/advisor you accepted.");
-  console.log("  2. Withdraw your other NUworks applications.");
-  console.log("  3. Let these employers know you're no longer available:");
+  console.log("  1. Record and accept the offer in NUworks: Student Utilities → My Co-op Job Search → Record an Offer (required for Spring 2027 co-ops).");
+  console.log("  2. Tell your co-op coordinator/advisor you accepted.");
+  console.log("  3. Withdraw your other NUworks applications.");
+  console.log("  4. Let these employers know you're no longer available:");
   for (const r of notifyList(db)) console.log(`     - ${r.employer}: ${r.title} (${r.status})`);
   return 0;
 }

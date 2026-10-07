@@ -11,7 +11,7 @@ import type { NuworksAdapter } from "../nuworks/adapter.js";
 import { AdapterNotReadyError } from "../nuworks/adapter.js";
 import { openBrowser } from "../nuworks/browser.js";
 import { FixtureAdapter } from "../nuworks/fixture-adapter.js";
-import { LiveAdapter } from "../nuworks/live-adapter.js";
+import { LiveAdapter, NuworksSignedOutError } from "../nuworks/live-adapter.js";
 import { checkSession } from "../nuworks/session.js";
 import { writeDailyReport } from "../report/write.js";
 import { applyExternal } from "./apply-external.js";
@@ -83,7 +83,7 @@ export async function runDaily(opts: DailyOptions = {}): Promise<DailySummary> {
         else {
           const handle = await openBrowser({ headless: true, readOnly: true, purpose: "the daily run" });
           const session = await checkSession(db, handle);
-          if (session.status === "ok" || session.status === "sso_silent_ok") adapter = new LiveAdapter(handle);
+          if (session.status === "ok" || session.status === "sso_silent_ok") adapter = new LiveAdapter(handle, s);
           else {
             await handle.close();
             problem("NUworks needs you to sign in again: run npm run login", "session.needs_login");
@@ -93,7 +93,7 @@ export async function runDaily(opts: DailyOptions = {}): Promise<DailySummary> {
           const sync = await syncApplications(db, adapter, s, runId);
           summary.nuworks.capUsed = sync.count;
           if (!halt && me) {
-            summary.nuworks.discover = await discover(db, adapter, runId);
+            summary.nuworks.discover = await discover(db, adapter, runId, s.nuworks.maxDetailsPerRun);
             summary.nuworks.filters = evaluate(db, me, s, "nuworks", runId);
             summary.nuworks.scoring = await ai("Scoring", () => scorePending(db, brain, me!, s, runId));
             summary.nuworks.queue = selectForQueue(db, s, runId, opts.now);
@@ -102,6 +102,7 @@ export async function runDaily(opts: DailyOptions = {}): Promise<DailySummary> {
         }
       } catch (err) {
         if (err instanceof AdapterNotReadyError) problem(err.message, "nuworks.not_mapped");
+        else if (err instanceof NuworksSignedOutError) problem(err.message, "session.needs_login");
         else problem(`NUworks step failed: ${(err as Error).message}`, "nuworks.failed");
       } finally {
         await adapter?.close();

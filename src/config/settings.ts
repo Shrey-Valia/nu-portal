@@ -21,6 +21,11 @@ export const SettingsSchema = z.object({
     .object({
       // Co-op terms to search, e.g. ["Spring 2027", "Summer 2027"]. Empty = just cycle.label.
       terms: z.array(z.string()).default([]),
+      // Extra NUworks job-search filters, exactly as the site sends them (from recon):
+      // job_type=5 is Co-op; targeted_academic_majors and el_work_term take NUworks ids.
+      searchParams: z.record(z.string(), z.string()).default({ job_type: "5", exclude_applied_jobs: "1" }),
+      maxPagesPerRun: z.number().int().positive().default(80),
+      maxDetailsPerRun: z.number().int().positive().default(150),
       weeklyLimit: z.number().int().positive().default(20),
       minDailyQueue: z.number().int().nonnegative().default(2),
       maxDailyQueue: z.number().int().positive().default(10),

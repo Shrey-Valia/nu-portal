@@ -131,3 +131,8 @@ test("NUworks can search several co-op terms", async () => {
   assert.equal(code(applyFilters(job({ terms: ["Spring-Summer 2027"] }), profile, c)), "pass");
   assert.equal(code(applyFilters(job({ terms: ["Fall 2027"] }), profile, c)), "wrong_term");
 });
+
+test("NUworks' own 'not qualified' flag filters a job; 'qualified' skips the major guess", () => {
+  assert.equal(code(applyFilters(job({ qualifications: { nuworksQualified: false } }), profile, ctx())), "not_qualified");
+  assert.equal(code(applyFilters(job({ qualifications: { nuworksQualified: true, majors: ["Mechanical Engineering"] } }), profile, ctx())), "pass");
+});

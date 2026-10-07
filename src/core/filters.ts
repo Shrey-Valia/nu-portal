@@ -7,6 +7,8 @@ import { normalizeName } from "./dedupe.js";
 
 export interface Qualifications {
   majors?: string[];
+  // NUworks' own eligibility check for you (majors, level, GPA, authorization).
+  nuworksQualified?: boolean;
   levels?: string[];
   minGpa?: number;
   citizenship?: "required" | null;
@@ -44,6 +46,7 @@ export type FilterCode =
   | "citizenship"
   | "clearance"
   | "sponsorship"
+  | "not_qualified"
   | "major"
   | "level"
   | "gpa"
@@ -80,7 +83,8 @@ export function applyFilters(job: JobFacts, profile: Profile, ctx: FilterContext
   if (noSponsor && auth.needsSponsorship) return fail("sponsorship", "does not sponsor visas");
 
   const q = job.qualifications;
-  if (q.majors?.length && !q.majors.some((m) => /\b(all|any) (majors?|disciplines?)\b/i.test(m))) {
+  if (q.nuworksQualified === false) return fail("not_qualified", "NUworks says you don't meet this posting's requirements");
+  if (q.nuworksQualified !== true && q.majors?.length && !q.majors.some((m) => /\b(all|any) (majors?|disciplines?)\b/i.test(m))) {
     const mine = profile.education.majors.map(normalizeName);
     const ok = q.majors.map(normalizeName).some((m) => mine.some((x) => x.includes(m) || m.includes(x)));
     if (!ok) return fail("major", `majors: ${q.majors.slice(0, 4).join(", ")}`);

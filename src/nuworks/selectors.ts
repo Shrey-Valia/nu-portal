@@ -5,7 +5,7 @@
 export const SESSION = {
   // recon: anything that only appears on a sign-in page.
   loginMarker: 'input[type="password"], button:has-text("Sign in"), a:has-text("Log in with")',
-  // recon: something that only appears when signed in (e.g. the student nav). Null = not used yet.
-  loggedInMarker: null as string | null,
+  // Confirmed in recon: the user menu button ("User Menu. N notifications inside.") only exists when signed in.
+  loggedInMarker: '[aria-label*="User Menu"]' as string | null,
   loginUrlPattern: /(login|signin|sso|saml|duosecurity|microsoftonline)/i,
 };
